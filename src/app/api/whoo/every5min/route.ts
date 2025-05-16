@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
   const whooUsers = await getAllWhooUsers();
   await Promise.all(whooUsers.map(async (user) => {
     if (!user.latitude || !user.longitude) return;
-    console.log("stayedAt ", user.stayed_at);
-    console.log("stayedAt type ", typeof user.stayed_at);
     await updateLocation({
       token: user.token,
       latitude: user.latitude,
@@ -22,6 +20,6 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ message: "success" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "error" }, { status: 500 });
+    return NextResponse.json({ message: "error", details: error }, { status: 500 });
   }
 }

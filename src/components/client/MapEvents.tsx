@@ -25,7 +25,8 @@ const calcStayTime = (stayed_at: string) => {
 
 export default function MapEvents() {
   const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage } = useContext<MapContextType>(MapContext);
-  const markersRef = useRef<Record<number, L.Marker>>({})
+  const markersRef = useRef<Record<number, L.Marker>>({});
+  const iconSize = 48;
 
   const map = useMapEvents({
     click: (e) => {
@@ -110,9 +111,9 @@ export default function MapEvents() {
           }}
           icon={L.icon({
             iconUrl: profileImage,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -35],
+            iconSize: [iconSize, iconSize],
+            iconAnchor: [iconSize / 2, iconSize / 2],
+            popupAnchor: [0, -iconSize],
           })}
         >
           <Popup>
@@ -129,9 +130,9 @@ export default function MapEvents() {
           }}
           icon={L.icon({
             iconUrl: user.img,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -35],
+            iconSize: [iconSize, iconSize],
+            iconAnchor: [iconSize / 2, iconSize / 2],
+            popupAnchor: [0, -iconSize],
             className: "rounded-icon",
           })}
         >

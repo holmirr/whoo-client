@@ -9,8 +9,7 @@ import { useState, useContext } from 'react';
 import { MapContext } from './DynamicMap';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng } = useContext(MapContext);
-  const [actualLatLng, setActualLatLng] = useState<{ lat: number, lng: number } | null>(null);
+  const { nowLatLng, setNowLatLng, actualLatLng, setActualLatLng } = useContext(MapContext);
 
   useEffect(() => {
     // マーカーアイコンの問題を修正
@@ -28,13 +27,23 @@ export default function Maps() {
       });
     }
   }, []);
+  
+  let center: [number, number] | null;
+
   if (nowLatLng) {
-  return  (
+    center = [nowLatLng.lat, nowLatLng.lng];
+  } else if (actualLatLng) {
+    center = [actualLatLng.lat, actualLatLng.lng];
+  } else {
+    center = null;
+  }
+
+  return center && (
     <MapContainer
-      center={[nowLatLng.lat, nowLatLng.lng]} 
-      zoom={13}
+      center={center} 
+      zoom={16}
       scrollWheelZoom={true}
-      style={{ width: '80%', height: '500px', margin: '0 auto' }}
+      style={{ width: '100%', height: '100%' }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -43,21 +52,5 @@ export default function Maps() {
       <MapEvents />
     </MapContainer>
   );
-} else {
-  return actualLatLng && (
-    <MapContainer
-      center={[actualLatLng.lat, actualLatLng.lng]} 
-      zoom={13}
-      scrollWheelZoom={true}
-      style={{ width: '80%', height: '500px', margin: '0 auto' }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <MapEvents />
-    </MapContainer>
-  )
-}
 
 }

@@ -29,13 +29,13 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
     }))
   );
   const [flyTarget, setFlyTarget] = useState<{ lat: number, lng: number, id: number } | null>(null);
-  
+  const [actualLatLng, setActualLatLng] = useState<{ lat: number, lng: number } | null>(null);
   const handleUpdateLocation = async () => {
     if (!pinsLatLng) {
       alert("ピンの位置を選択してください");
       return;
     }
-    try{
+    try {
       await updatePinsLatLng({
         lat: pinsLatLng.lat,
         lng: pinsLatLng.lng,
@@ -46,6 +46,16 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
     } catch (error) {
       console.error(error);
       alert("位置情報の更新に失敗しました");
+    }
+  }
+
+  const handleFlyToMe = () => {
+    if (!nowLatLng && actualLatLng) {
+      setFlyTarget({ lat: actualLatLng.lat, lng: actualLatLng.lng, id: 0 });
+    } else if (nowLatLng) {
+      setFlyTarget({ lat: nowLatLng.lat, lng: nowLatLng.lng, id: 0 });
+    } else {
+      setFlyTarget({ lat: 35.681236, lng: 139.767125, id: 0 });
     }
   }
 
@@ -72,29 +82,34 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
   }
 
   return (
-    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage }}>
-      <MapComponent />
+    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, actualLatLng, setActualLatLng }}>
+      <div className="md:w-3/5 md:mx-auto md:h-[500px] w-full h-screen">
+        <MapComponent />
+      </div>
       <div className="flex flex-row gap-2 justify-center">
         <div>
           <p>バッテリー残量</p>
-          <input type="number" value={batteryLevel} onChange={(e) => setBatteryLevel(Number(e.target.value))} 
-          className="w-16"
-          min={0}
-          max={100}
+          <input type="number" value={batteryLevel} onChange={(e) => setBatteryLevel(Number(e.target.value))}
+            className="w-16"
+            min={0}
+            max={100}
           />
         </div>
         <button
           onClick={handleUpdateLocation}
           disabled={!pinsLatLng}
-          className={`bg-blue-500 text-white px-4 py-2 rounded-md ${
-            !pinsLatLng
+          className={`bg-blue-500 text-white px-4 py-2 rounded-md ${!pinsLatLng
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-blue-600 cursor-pointer'
-          }`}
+            }`}
         >
           位置情報更新
         </button>
-        
+
+        <button onClick={handleFlyToMe}>
+          自分の位置に移動
+        </button>
+
         {
           usersInfo.map((user) => (
             <button key={user.name} onClick={() => updateFriendsLatLng(user.id)}>
@@ -108,23 +123,21 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
         <ModeButton onClick={() => setMode(null)} disabled={mode === null}>通常モード</ModeButton>
       </div>
       <div className="flex flex-row gap-2 justify-center">
-        <button 
-        onClick={() => setIsRouting(true)} 
-        disabled={!start || !end || mode !== "routing" || isRouting}
-      className={`bg-blue-500 text-white px-4 py-2 rounded-md ${
-        !start || !end || mode !== "routing" || isRouting
-          ? 'opacity-50 cursor-not-allowed'
-          : 'hover:bg-blue-600 cursor-pointer'
-        }`}
+        <button
+          onClick={() => setIsRouting(true)}
+          disabled={!start || !end || mode !== "routing" || isRouting}
+          className={`bg-blue-500 text-white px-4 py-2 rounded-md ${!start || !end || mode !== "routing" || isRouting
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-blue-600 cursor-pointer'
+            }`}
         >経路を表示</button>
-        <button 
-        onClick={() => getRouteLatLngs(routeInfo)} 
-        className={`bg-blue-500 text-white px-4 py-2 rounded-md ${
-          routeInfo === null
-            ? 'opacity-50 cursor-not-allowed'
-            : 'hover:bg-blue-600 cursor-pointer'
-        }`}
-        disabled={routeInfo === null}
+        <button
+          onClick={() => getRouteLatLngs(routeInfo)}
+          className={`bg-blue-500 text-white px-4 py-2 rounded-md ${routeInfo === null
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-blue-600 cursor-pointer'
+            }`}
+          disabled={routeInfo === null}
         >
           経路を取得</button>
       </div>

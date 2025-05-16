@@ -32,6 +32,8 @@ export type MapContextType = {
   routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number } | null,
   setRouteInfo: (value: { latlngs: { lat: number, lng: number }[], distance: number, time: number } | null) => void,
   profileImage: string,
+  actualLatLng: { lat: number, lng: number } | null,
+  setActualLatLng: (value: { lat: number, lng: number } | null) => void,
 }   
 
 export interface LocationData {
