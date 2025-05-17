@@ -1,7 +1,7 @@
 "use client";
 import { useMapEvents, Marker, Popup } from "react-leaflet";
 import { useRef, useContext, useEffect, useState } from "react";
-import { MapContext } from "./DynamicMap";
+import { MapContext } from "../DynamicMap";
 import { MapContextType } from "@/libs/types";
 import L from "leaflet";
 import "leaflet-routing-machine";
@@ -30,7 +30,7 @@ export default function MapEvents() {
 
   const map = useMapEvents({
     click: (e) => {
-      if (mode === null) {
+      if (mode === "normal") {
         setStart(null);
         setEnd(null);
         setIsRouting(false);
@@ -85,6 +85,9 @@ export default function MapEvents() {
         show: false,
         collapsible: true,
         autoRoute: true,
+        plan: new L.Routing.Plan([L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng)], {
+          createMarker: (i, wp) => false,
+        }),
       });
       map.addControl(routingControl);
       routingControl.on("routesfound", (e) => {
@@ -147,14 +150,20 @@ export default function MapEvents() {
         <div>
           <Marker position={pinsLatLng}>
             <Popup>
-              緯度: {pinsLatLng?.lat.toFixed(4)}<br />
-              経度: {pinsLatLng?.lng.toFixed(4)}
+              <button
+                className="absolute inset-0 bg-blue-500 text-white rounded-md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPinsLatLng(null);
+                }}>
+                ピンを削除
+              </button>
             </Popup>
           </Marker>
         </div>
       )}
       {start && (
-        <Marker position={start} icon={new L.Icon({
+        <Marker position={start} icon={L.icon({
           iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
           shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
           iconSize: [25, 41],
@@ -167,7 +176,7 @@ export default function MapEvents() {
         </Marker>
       )}
       {end && (
-        <Marker position={end} icon={new L.Icon({
+        <Marker position={end} icon={L.icon({
           iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
           shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
           iconSize: [25, 41],

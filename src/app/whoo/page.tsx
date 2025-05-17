@@ -21,9 +21,7 @@ export default async function WhooPage() {
     }
 
     return (
-      <div>
         <DynamicMap users={users} _nowLatLng={nowLatLng} profileImage={profileImage} />
-      </div>
     )
   } catch (error) {
     console.error(error);

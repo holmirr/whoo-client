@@ -21,8 +21,8 @@ export type MapContextType = {
   setUsersInfo: (value: { lat: number, lng: number, stayed_at: string, name: string, img: string, id: number }[]) => void,
   flyTarget: { lat: number, lng: number, id: number } | null,
   setFlyTarget: (value: { lat: number, lng: number, id: number } | null) => void,
-  mode: null | "routing" | "all",
-  setMode: (value: null | "routing" | "all") => void,
+  mode: "normal" | "routing",
+  setMode: (value: "normal" | "routing") => void,
   start: { lat: number, lng: number } | null,
   setStart: (value: { lat: number, lng: number } | null) => void,
   end: { lat: number, lng: number } | null,
@@ -34,6 +34,10 @@ export type MapContextType = {
   profileImage: string,
   actualLatLng: { lat: number, lng: number } | null,
   setActualLatLng: (value: { lat: number, lng: number } | null) => void,
+  batteryLevel: number,
+  setBatteryLevel: (value: number) => void,
+  showSetting: boolean,
+  setShowSetting: (value: boolean) => void,
 }   
 
 export interface LocationData {

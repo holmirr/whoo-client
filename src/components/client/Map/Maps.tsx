@@ -6,7 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
 import MapEvents from './MapEvents';
 import { useState, useContext } from 'react';
-import { MapContext } from './DynamicMap';
+import { MapContext } from '../DynamicMap';
 
 export default function Maps() {
   const { nowLatLng, setNowLatLng, actualLatLng, setActualLatLng } = useContext(MapContext);

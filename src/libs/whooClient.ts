@@ -41,7 +41,7 @@ export async function updateLocation({ token, latitude, longitude, speed, batter
     "user_location[latitude]": latitude.toString(),
     "user_location[longitude]": longitude.toString(),
     "user_location[speed]": (speed / 3.6).toString(),
-    "user_location[getting_location_type]": "2",
+    "user_location[getting_location_type]": "5",
     "user_location[horizontal_accuracy]": "1",
     "app_state[active]": isActive ? "true" : "false",
     "user_battery[level]": batteryLevel.toString(),
@@ -58,7 +58,7 @@ export async function updateLocation({ token, latitude, longitude, speed, batter
     })
     .replace(/\//g, "-") + " +0000";
   }
-
+  console.log(data);
   const response = await fetch("https://www.wh00.ooo/api/user/location", {
     method: "PATCH",
     body: new URLSearchParams(data),

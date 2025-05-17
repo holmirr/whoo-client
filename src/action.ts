@@ -40,7 +40,7 @@ export async function getFriendsLatLng() {
   return users;
 }
 
-export async function getRouteLatLngs(routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number } | null) {
+export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number } | null) {
   console.log(routeInfo);
   console.log(routeInfo?.latlngs.length)
 }
