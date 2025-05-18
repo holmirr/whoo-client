@@ -38,6 +38,8 @@ export type MapContextType = {
   setBatteryLevel: (value: number) => void,
   showSetting: boolean,
   setShowSetting: (value: boolean) => void,
+  showFriendsList: boolean,
+  setShowFriendsList: (value: boolean) => void,
 }   
 
 export interface LocationData {

@@ -7,7 +7,7 @@ export default function Battery() {
   const { batteryLevel, setBatteryLevel } = useContext(MapContext);
   return (
     <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-500 mb-1">
             バッテリー残量
           </label>
           <input

@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 import ModeSelect from "./ModeSelect";
 import Battery from "./Battery";
-
+import RequiredTime from "./RequiredTime";
 export default function Setting() {
   const { mode, setMode, batteryLevel, setBatteryLevel, showSetting, setShowSetting } = useContext(MapContext);
 
@@ -30,10 +30,11 @@ export default function Setting() {
           </svg>
         </button>
       </div>
-      <div className="overflow-y-auto md:w-5/10 md:mx-auto flex flex-col gap-4" style={{ maxHeight: 'calc(33.333vh - 4rem)' }}>
+      <div className="overflow-y-auto md:w-5/10 md:mx-auto flex flex-col gap-4" style={{ maxHeight: 'calc(50vh - 4rem)' }}>
         {/* ここに設定項目を追加 */}
         <ModeSelect />
         <Battery />
+        {mode==="routing" && <RequiredTime />}
         {/* 他の設定項目をここに追加 */}
       </div>
     </div>
