@@ -23,13 +23,13 @@ export default function Battery() {
               const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
               setBatteryLevel(Math.round(percentage));
             }}
-            className="w-full appearance-none bg-gray-300 h-2 rounded-full"
+            className="m-4 block w-8/10 mx-auto appearance-none bg-gray-300 h-2 rounded-full"
             style={{
               WebkitAppearance: 'none',
               cursor: 'pointer'
             }}
           />
-          <div className="text-right">{batteryLevel}%</div>
+          <div className="text-right mr-4">{batteryLevel}%</div>
         </div>
   );
 }

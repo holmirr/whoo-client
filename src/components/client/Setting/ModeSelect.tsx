@@ -19,6 +19,12 @@ export default function ModeSelect() {
       >
         予約モード
       </button>
+      <button className={`flex-1  px-2 py-1 rounded-md 
+      ${mode === "reservationList" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
+        onClick={() => setMode("reservationList")}
+      >
+        予約一覧
+      </button>
     </div>
   );
 }

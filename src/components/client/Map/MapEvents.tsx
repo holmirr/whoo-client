@@ -24,7 +24,7 @@ const calcStayTime = (stayed_at: string) => {
 }
 
 export default function MapEvents() {
-  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage } = useContext<MapContextType>(MapContext);
+  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, startDate, setStartDate } = useContext<MapContextType>(MapContext);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const iconSize = 48;
 
@@ -95,7 +95,7 @@ export default function MapEvents() {
         const latLngs = route.coordinates;
         const distance = route.summary.totalDistance;
         const time = route.summary.totalTime;
-        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance: distance, time: time });
+        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance: distance, time: time, startDate: startDate || undefined});
       });
       return () => {
         map.removeControl(routingControl);

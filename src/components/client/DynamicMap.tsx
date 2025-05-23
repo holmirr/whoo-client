@@ -18,15 +18,16 @@ export const MapContext = createContext({} as MapContextType);
 
 export default function DynamicMap({ users, _nowLatLng, profileImage }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string }) {
   const [showFriendsList, setShowFriendsList] = useState(false);
-  const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, time: number } | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null>(null);
   const [isRouting, setIsRouting] = useState(false);
   const [batteryLevel, setBatteryLevel] = useState(100);
   const [start, setStart] = useState<{ lat: number, lng: number } | null>(null);
   const [end, setEnd] = useState<{ lat: number, lng: number } | null>(null);
   const [showSetting, setShowSetting] = useState(false);
-  const [mode, setMode] = useState<"normal" | "routing" >("normal");
+  const [mode, setMode] = useState<"normal" | "routing" | "reservationList">("normal");
   const [pinsLatLng, setPinsLatLng] = useState<{ lat: number, lng: number } | null>(null);
   const [nowLatLng, setNowLatLng] = useState<{ lat: number, lng: number } | null>(_nowLatLng);
+  const [startDate, setStartDate] = useState<string>("");
   const [usersInfo, setUsersInfo] = useState<{ lat: number, lng: number, stayed_at: string, name: string, img: string, id: number }[]>(
     users.map((user) => ({
       lat: parseFloat(user.latitude),
@@ -41,7 +42,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
   const [actualLatLng, setActualLatLng] = useState<{ lat: number, lng: number } | null>(null);
   
   return (
-    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, actualLatLng, setActualLatLng, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList }}>
+    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, actualLatLng, setActualLatLng, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate }}>
       <div className="md:w-3/5 md:mx-auto w-full h-10/10 relative">
         <MapComponent />
         <SettingButton />
@@ -53,10 +54,6 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
         <FriendsPositionButton />
         <FriendsList />
       </div>
-      {/* <div className="flex flex-row gap-2 justify-center">
-
-      </div>
-      */}
     </MapContext.Provider>
   )
 }
