@@ -3,11 +3,9 @@ import { useContext } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 
 export default function MyPositionButton() {
-  const { nowLatLng, actualLatLng, setFlyTarget } = useContext(MapContext);
+  const { nowLatLng, setFlyTarget } = useContext(MapContext);
   const handleFlyToMe = () => {
-    if (!nowLatLng && actualLatLng) {
-      setFlyTarget({ lat: actualLatLng.lat, lng: actualLatLng.lng, id: 0 });
-    } else if (nowLatLng) {
+    if (nowLatLng) {
       setFlyTarget({ lat: nowLatLng.lat, lng: nowLatLng.lng, id: 0 });
     } else {
       setFlyTarget({ lat: 35.681236, lng: 139.767125, id: 0 });

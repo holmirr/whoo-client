@@ -20,8 +20,8 @@ export default function Setting() {
           setShowSetting(false);
         }}
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-white text-white shadow-lg rounded-t-lg p-4 z-[100000000]" style={{ height: '50vh' }}>
-        <div className="flex flex-col w-full md:w-5/10 md:mx-auto h-full">
+      <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white shadow-lg rounded-t-lg p-4 z-[100000000] pb-5" style={{ height: '60vh' }}>
+        <div className="flex flex-col w-full max-w-xl mx-auto h-full">
           <div className="flex justify-end items-center mb-4 relative">
             <h2 className="text-lg font-bold absolute left-1/2 -translate-x-1/2">設定</h2>
             <button

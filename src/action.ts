@@ -52,7 +52,10 @@ export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, l
     if (!token) {
       redirect("/whoo/login");
     }
-
+    if (routeInfo.startDate === "now") {
+      console.log("startDate is now");
+      return { success: "startDate is now", error: null };
+    }
     await saveRouteInfo({
       token: token,
       scheduledTime: new Date(routeInfo.startDate),

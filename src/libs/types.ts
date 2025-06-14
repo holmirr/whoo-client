@@ -32,8 +32,6 @@ export type MapContextType = {
   routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null,
   setRouteInfo: (value: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null) => void,
   profileImage: string,
-  actualLatLng: { lat: number, lng: number } | null,
-  setActualLatLng: (value: { lat: number, lng: number } | null) => void,
   batteryLevel: number,
   setBatteryLevel: (value: number) => void,
   showSetting: boolean,
@@ -48,6 +46,7 @@ export interface LocationData {
   locations: Location[];
 }
 
+// stayed_atはyyyy-mm-dd hh:mm:ssの形式である(UTC)
 export interface Location {
   latitude: string;
   longitude: string;

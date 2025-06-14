@@ -9,7 +9,7 @@ import { useState, useContext } from 'react';
 import { MapContext } from '../DynamicMap';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, actualLatLng, setActualLatLng } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng } = useContext(MapContext);
 
   useEffect(() => {
     // マーカーアイコンの問題を修正
@@ -21,26 +21,16 @@ export default function Maps() {
 
     if (!nowLatLng) {
       navigator.geolocation.getCurrentPosition((position) => {
-        setActualLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
       }, (error) => {
-        setActualLatLng({ lat: 35.681236, lng: 139.767125 });
+        setNowLatLng({ lat: 35.681236, lng: 139.767125 });
       });
     }
   }, []);
   
-  let center: [number, number] | null;
-
-  if (nowLatLng) {
-    center = [nowLatLng.lat, nowLatLng.lng];
-  } else if (actualLatLng) {
-    center = [actualLatLng.lat, actualLatLng.lng];
-  } else {
-    center = null;
-  }
-
-  return center && (
+  return nowLatLng && (
     <MapContainer
-      center={center} 
+      center={[nowLatLng.lat, nowLatLng.lng]}
       zoom={16}
       scrollWheelZoom={true}
       style={{ width: '100%', height: '100%' }}

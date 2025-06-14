@@ -8,6 +8,10 @@ export default function RequiredTime() {
   const { routeInfo, setRouteInfo } = useContext(MapContext);
 
   useEffect(() => {
+    console.log("first mount")
+  }, []);
+
+  useEffect(() => {
     if (routeInfo?.time && inputValue === "") {
       const min = Math.floor(routeInfo.time / 60);
       setInputValue(min.toString());
@@ -15,11 +19,12 @@ export default function RequiredTime() {
   }, [routeInfo]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
     setInputValue(e.target.value);
     if (routeInfo?.time) {
       const min = parseInt(e.target.value);
-      const time = min * 60;
-      setRouteInfo({ ...routeInfo, time: time });
+      const seconds = min * 60;
+      setRouteInfo({ ...routeInfo, time: seconds });
     }
   };
 
