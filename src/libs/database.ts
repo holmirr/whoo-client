@@ -89,3 +89,7 @@ export async function updateRouteInfo({ token, session_id, scheduled_time, requi
 export async function getRouteInfo(token: string) {
   return await sql<dbRouteInfo[]>`SELECT * FROM route_info WHERE token = ${token} ORDER BY scheduled_time ASC`;
 }
+
+export async function deleteRouteInfo(session_id: string) {
+  await sql`DELETE FROM route_info WHERE session_id = ${session_id}`;
+}

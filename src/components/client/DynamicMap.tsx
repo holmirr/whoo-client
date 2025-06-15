@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { createContext, useEffect, useState } from "react";
-import { getFriendsLatLng } from "@/action";
 import { MapContextType, Location } from "@/libs/types";
 import UpdateButton from "./Button/Normal/UpdateButton";
 import SettingButton from "./Button/SettingButton";
@@ -13,12 +12,14 @@ import ReserveRouting from "./Button/Reservation/ReserveRouting";
 import FriendsPositionButton from "./Button/FriendsPositionButton";
 import FriendsList from "./FriendsList";
 import Modes from "./Button/Modes";
+import ReservationList from "./Setting/ReservationList";
 const MapComponent = dynamic(() => import("@/components/client/Map/Maps"), { ssr: false });
     
 export const MapContext = createContext({} as MapContextType);
 
 export default function DynamicMap({ users, _nowLatLng, profileImage }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string }) {
   const [showFriendsList, setShowFriendsList] = useState(false);
+  // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
   const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null>(null);
   const [isRouting, setIsRouting] = useState(false);
   const [batteryLevel, setBatteryLevel] = useState(80);
@@ -62,6 +63,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
         <FriendsPositionButton />
         <FriendsList />
         <Modes /> 
+        {mode === "reservationList" && <ReservationList />}
       </div>
     </MapContext.Provider>
   )

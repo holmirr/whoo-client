@@ -6,6 +6,7 @@ import { MapContextType } from "@/libs/types";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import { calcStayTime } from "@/libs/utils";
+import { getFriendsLatLng } from "@/action";
 
 const startIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -24,7 +25,7 @@ const endIcon = L.icon({
 });
 
 export default function MapEvents() {
-  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, startDate, setStartDate } = useContext<MapContextType>(MapContext);
+  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, startDate, setStartDate, setUsersInfo } = useContext<MapContextType>(MapContext);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const iconSize = 48;
 
@@ -43,7 +44,16 @@ export default function MapEvents() {
         markersRef.current[user.id] = el;
       }}
       eventHandlers={{
-        click: () => {
+        click: async () => {
+          const result = await getFriendsLatLng();
+          setUsersInfo(result.map((usr) => ({
+            lat: Number(usr.latitude),
+            lng: Number(usr.longitude),
+            stayed_at: usr.stayed_at,
+            name: usr.user.display_name,
+            img: usr.user.profile_image,
+            id: usr.user.id
+          })));
           setFlyTarget({ id: user.id, lat: user.lat, lng: user.lng });
         }
       }}
@@ -127,9 +137,11 @@ export default function MapEvents() {
         const route = e.routes[0];
         const latLngs = route.coordinates;
         const distance = route.summary.totalDistance;
+        console.log("distance", distance);
         const time = route.summary.totalTime;
-        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance: distance, time: time, startDate: startDate || undefined });
+        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance: distance, time: Math.floor(time), startDate: startDate || undefined });
       });
+      console.log("route is found and setRouteInfo is called ");
       return () => {
         map.removeControl(routingControl);
         setRouteInfo(null);

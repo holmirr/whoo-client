@@ -1,18 +1,29 @@
 "use client";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 import ModeSelect from "./ModeSelect";
 import Battery from "./Battery";
 import RequiredTime from "./RequiredTime";
 import StartDate from "./StartDate";
-import ReservationList from "./ReservationList";
+
+
 export default function Setting() {
-  const { mode, setMode, batteryLevel, setBatteryLevel, showSetting, setShowSetting } = useContext(MapContext);
+  const { mode, setMode, setBatteryLevel, showSetting, setShowSetting, routeInfo } = useContext(MapContext);
+  const [requiredTime, setRequiredTime] = useState<string>("");
+  const [settingMode, setSettingMode] = useState<"normal" | "routing">(mode==="reservationList" ? "normal" : mode);
 
-  // showSettingがfalseの場合は何も表示しない
-  if (!showSetting) return null;
+  useEffect(() => {
+    setSettingMode(mode==="reservationList" ? "normal" : mode);
+  }, [mode]);
+  
+  useEffect(() => {
+    if (routeInfo?.time) {
+      const min = Math.floor(routeInfo.time / 60);
+      setRequiredTime(min.toString());
+    }
+  }, [routeInfo]);
 
-  return (
+  return showSetting && (
     <>
       <div
         className="absolute inset-0 bg-gray-500/50 z-[99999]"
@@ -33,12 +44,11 @@ export default function Setting() {
               </svg>
             </button>
           </div>
-          <ModeSelect />
+          <ModeSelect settingMode={settingMode} setSettingMode={setSettingMode} />
           <div className="overflow-y-auto flex flex-col gap-4 no-scrollbar pt-4" >
-            {(mode === "normal" || mode === "routing") && <Battery />}
-            {mode === "routing" && <RequiredTime />}
-            {mode === "routing" && <StartDate />}
-            {mode === "reservationList" && <ReservationList />}
+            {(settingMode === "normal" || settingMode === "routing") && <Battery />}
+            {settingMode === "routing" && <RequiredTime requiredTime={requiredTime} setRequiredTime={setRequiredTime} />}
+            {settingMode === "routing" && <StartDate />}
           </div>
         </div>
       </div>

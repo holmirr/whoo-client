@@ -3,7 +3,8 @@
 import { getFriendsInfo, updateLocation } from "@/libs/whooClient";
 import { signIn, auth } from "@/auth/auth";
 import { redirect } from "next/navigation";
-import { saveWhooUser, saveRouteInfo, getRouteInfo } from "@/libs/database";
+import { saveWhooUser, saveRouteInfo, getRouteInfo, deleteRouteInfo } from "@/libs/database";
+import { validStartDate } from "@/libs/utils";
 
 export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number) {
   if (!props) {
@@ -40,6 +41,7 @@ export async function getFriendsLatLng() {
   return users;
 }
 
+// distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
 export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null, batteryLevel: number) {
   try {
     if (!routeInfo) {
@@ -53,9 +55,14 @@ export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, l
       redirect("/whoo/login");
     }
     if (routeInfo.startDate === "now") {
-      console.log("startDate is now");
-      return { success: "startDate is now", error: null };
+      const reservationList = await getReservationList();
+      if (reservationList.every((reservation) => validStartDate(routeInfo.startDate as string, routeInfo.time, reservation.scheduledTime, reservation.requiredTime))) {
+        return { success: "startDate is now", error: null };
+      } else {
+        return { error: "予約時間が重複しています", success: null };
+      }
     }
+    console.log("routeInfo is reserved in serverAction", routeInfo);
     await saveRouteInfo({
       token: token,
       scheduledTime: new Date(routeInfo.startDate),
@@ -105,3 +112,10 @@ export async function getReservationList() {
   })
 }
 
+export async function deleteReservation(session_id: string) {
+  const session = await auth();
+  if (!session?.whoo) {
+    redirect("/whoo/login");
+  }
+  await deleteRouteInfo(session_id);
+}

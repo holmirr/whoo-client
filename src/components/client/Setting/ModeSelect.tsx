@@ -1,29 +1,19 @@
 "use client";
 
-import { useContext } from "react";
-import { MapContext } from "../DynamicMap";
-
-export default function ModeSelect() {
-  const { mode, setMode } = useContext(MapContext);
+export default function ModeSelect({settingMode, setSettingMode}: {settingMode: "normal" | "routing", setSettingMode: (mode: "normal" | "routing") => void}) {
   return (
     <div className="flex bg-gray-800 rounded-md p-1">
       <button className={`flex-1  px-2 py-1 rounded-md 
-      ${mode === "normal" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
-        onClick={() => setMode("normal")}
+      ${settingMode === "normal" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
+        onClick={() => setSettingMode("normal")}
       >
         通常モード
       </button>
       <button className={`flex-1  px-2 py-1 rounded-md 
-      ${mode === "routing" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
-        onClick={() => setMode("routing")}
+      ${settingMode === "routing" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
+        onClick={() => setSettingMode("routing")}
       >
-        予約モード
-      </button>
-      <button className={`flex-1  px-2 py-1 rounded-md 
-      ${mode === "reservationList" ? "bg-white text-gray-700" : "bg-gray-800 text-gray-600"}`}
-        onClick={() => setMode("reservationList")}
-      >
-        予約一覧
+        移動モード
       </button>
     </div>
   );

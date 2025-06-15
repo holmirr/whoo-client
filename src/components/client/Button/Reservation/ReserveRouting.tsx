@@ -9,8 +9,9 @@ export default function ReserveRouting() {
   const { routeInfo, setRouteInfo, setIsRouting, mode, batteryLevel } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [isGray, setIsGray] = useState(true);
+  const [isGray, setIsGray] = useState<boolean | null>(null);
   const [popupMsg, setPopupMsg] = useState("");
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleReserve = async () => {
     if (isGray) {
@@ -24,7 +25,11 @@ export default function ReserveRouting() {
       setIsRouting(false);
       setIsReserving(false);
     } else {
-      alert("経路を予約に失敗しました");
+      if (result.error === "予約時間が重複しています") {
+        alert("予約時間が重複しています");
+      } else {
+        alert("経路を予約に失敗しました");
+      }
       setIsReserving(false);
     }
   }
@@ -36,6 +41,7 @@ export default function ReserveRouting() {
         return;
       }
       const compareReservation = async () => {
+        setIsWaiting(true);
         const reservationList = await getReservationList();
         if (reservationList.every((reservation) => validStartDate(routeInfo.startDate as string, routeInfo.time, reservation.scheduledTime, reservation.requiredTime))) {
           setIsGray(false);
@@ -43,15 +49,20 @@ export default function ReserveRouting() {
           setIsGray(true);
           setPopupMsg("予約時間が重複しています")
         }
+        setIsWaiting(false);
       }
       compareReservation();
     } else {
       setIsGray(true);
       setPopupMsg("予約時間を設定してください");
     }
+
+    if (!routeInfo) {
+      setIsGray(null);
+    }
   }, [routeInfo]);
 
-  return routeInfo && (
+  return routeInfo && !isWaiting && isGray !== null && (
     <>
       <button
         onClick={handleReserve}
