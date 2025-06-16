@@ -5,7 +5,7 @@ import { updateLocation } from "@/libs/whooClient";
 export async function GET(request: NextRequest) {
   try{
   const whooUsers = await getAllWhooUsers();
-  await Promise.all(whooUsers.map(async (user) => {
+  const results = await Promise.allSettled(whooUsers.map(async (user) => {
     if (!user.latitude || !user.longitude) return;
     await updateLocation({
       token: user.token,
@@ -17,6 +17,11 @@ export async function GET(request: NextRequest) {
       isActive: false,
     });
   }));
+  const errorResults = results.filter((result) => result.status === "rejected");
+  if (errorResults.length > 0) {
+    console.error(errorResults);
+    throw new Error(errorResults.map(result => result.reason).join(", "));
+  }
   return NextResponse.json({ message: "success" });
   } catch (error) {
     console.error(error);

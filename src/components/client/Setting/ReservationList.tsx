@@ -9,7 +9,7 @@ import { secToHour, mTokm } from "@/libs/utils";
 export default function ReservationList() {
   const [reservationList, setReservationList] = useState<null | { sessionId: string, scheduledTime: Date, requiredTime: number, distance: number, batteryLevel: number }[]>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const { setMode } = useContext(MapContext);
+  const { setShowReservationList } = useContext(MapContext);
 
   useEffect(() => {
     const fetchReservationList = async () => {
@@ -35,12 +35,12 @@ export default function ReservationList() {
 
   return (
     <>
-      <div className="absolute inset-0 bg-gray-500/50 z-[99999]" onClick={() => setMode("normal")}>
+      <div className="absolute inset-0 bg-gray-500/50 z-[99999]" onClick={() => setShowReservationList(false)}>
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-black/80 text-white shadow-lg rounded-t-lg p-4 z-[100000000] pb-5">
         <div className="max-w-xl mx-auto px-10 relative">
           <h1 className="text-center text-2xl font-bold mb-4">予約一覧</h1>
-          <button className="absolute top-0 right-0" onClick={() => setMode("normal")}>
+          <button className="absolute top-0 right-0" onClick={() => setShowReservationList(false)}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>

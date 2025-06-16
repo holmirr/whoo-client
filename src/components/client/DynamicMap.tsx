@@ -26,7 +26,8 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
   const [start, setStart] = useState<{ lat: number, lng: number } | null>(null);
   const [end, setEnd] = useState<{ lat: number, lng: number } | null>(null);
   const [showSetting, setShowSetting] = useState(false);
-  const [mode, setMode] = useState<"normal" | "routing" | "reservationList">("normal");
+  const [mode, setMode] = useState<"normal" | "routing" >("normal");
+  const [showReservationList, setShowReservationList] = useState(false);
   const [pinsLatLng, setPinsLatLng] = useState<{ lat: number, lng: number } | null>(null);
   const [nowLatLng, setNowLatLng] = useState<{ lat: number, lng: number } | null>(_nowLatLng);
   const [startDate, setStartDate] = useState<string>("");
@@ -51,7 +52,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
   }, [mode]);
   
   return (
-    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate }}>
+    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate, showReservationList, setShowReservationList }}>
       <div className="md:w-3/5 md:mx-auto w-full h-10/10 relative">
         <MapComponent />
         <SettingButton />
@@ -63,7 +64,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
         <FriendsPositionButton />
         <FriendsList />
         <Modes /> 
-        {mode === "reservationList" && <ReservationList />}
+        {showReservationList && <ReservationList />}
       </div>
     </MapContext.Provider>
   )

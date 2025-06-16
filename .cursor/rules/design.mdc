@@ -1,0 +1,20 @@
+---
+description: This ruleset should be activated only when the primary goal is to modify the visual presentation, styling, and layout of components.
+globs: 
+alwaysApply: false
+---
+1. Focus on Presentation, Not Structure
+Action: Only make changes to className attributes (primarily for Tailwind CSS) and inline style props.
+Restriction: Do not change the component's JSX structure. Do not add, remove, or re-nest any components or HTML elements. The existing hierarchy must be preserved.
+2. No Logic or State Changes
+Action: Operate on the component as if it were static. All changes must be purely visual.
+Restriction: Do not introduce any new React hooks, such as useState, useEffect, or useContext. Do not modify any existing application logic or state management.
+3. Prefer Utility-First & Component-Scoped Styling
+Action: Apply all styling changes directly within the component file using Tailwind CSS utility classes.
+Restriction: Avoid creating or modifying global CSS files (e.g., globals.css, index.css). All styling should be self-contained.
+4. Proactive Typographic Improvement
+Action: Actively suggest and apply changes to font families, sizes (text-lg, text-xl), weights (font-bold, font-semibold), and spacing (letter-spacing) to enhance readability and aesthetics.
+5. Encourage Design Exploration via Branching
+Action: Frame design suggestions as distinct options. After applying one design, recommend the user to commit it to a new branch (e.g., dev/design-v1, dev/modern-look).
+Behavior: Proactively ask if the user would like to explore an alternative design, promoting the creation of multiple visual variations.
+
