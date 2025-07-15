@@ -9,9 +9,27 @@ import { useState, useContext } from 'react';
 import { MapContext } from '../DynamicMap';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token } = useContext(MapContext);
 
   useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:3001/?${new URLSearchParams({ token })}`);
+
+    ws.onopen = () => {
+      console.log('WebSocket接続が確立しました');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('サーバーからのメッセージ:', event.data);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket接続が閉じました');
+    };
+
+    ws.onerror = (error) => {
+      console.log('WebSocketエラー:', error);
+    };
+    
     // マーカーアイコンの問題を修正
     L.Icon.Default.mergeOptions({
       iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -26,6 +44,10 @@ export default function Maps() {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
       });
     }
+
+    return () => {
+      ws.close();
+    };
   }, []);
   
   return nowLatLng && (

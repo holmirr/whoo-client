@@ -1,5 +1,6 @@
 import { NextAuthConfig, User, Session } from "next-auth";
 import { AdapterUser, AdapterSession } from "next-auth/adapters";
+import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Session {
@@ -27,7 +28,7 @@ export const authConfig = {
       }
       return true;
     },
-    jwt({ token, user }: { token: any, user: User | AdapterUser }) {
+    jwt({ token, user }: { token: JWT, user: User | AdapterUser }) {
       if (user?.whoo) {
         token.whoo = {
           token: user.whoo.token,
@@ -39,10 +40,10 @@ export const authConfig = {
       session: {
         user: AdapterUser;
       } & AdapterSession & Session, 
-      token: any
+      token: JWT
     }) {
       if (token.whoo) {
-        session.whoo = token.whoo;
+        session.whoo = token.whoo as { token: string };
       }
       return session;
     },

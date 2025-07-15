@@ -13,6 +13,7 @@ export type UpdateLocationData = {
 }
 
 export type MapContextType = {
+  token: string,
   pinsLatLng: { lat: number, lng: number } | null,
   setPinsLatLng: (value: { lat: number, lng: number } | null) => void,
   nowLatLng: { lat: number, lng: number } | null,

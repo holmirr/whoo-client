@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import { whooUesr, dbRouteInfo } from "./types";
-const POSTGRES_URL = "postgresql://postgres:Koto-0524@database-1.c1ukumcekom4.ap-northeast-1.rds.amazonaws.com:5432/gpshacking";
+const POSTGRES_URL = process.env.POSTGRES_URL!;
 
 export const sql = postgres(POSTGRES_URL, { ssl: "require" });
 

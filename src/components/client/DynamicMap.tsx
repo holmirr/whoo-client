@@ -17,7 +17,7 @@ const MapComponent = dynamic(() => import("@/components/client/Map/Maps"), { ssr
     
 export const MapContext = createContext({} as MapContextType);
 
-export default function DynamicMap({ users, _nowLatLng, profileImage }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string }) {
+export default function DynamicMap({ users, _nowLatLng, profileImage, token }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string, token: string }) {
   const [showFriendsList, setShowFriendsList] = useState(false);
   // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
   const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null>(null);
@@ -52,7 +52,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage }: { users:
   }, [mode]);
   
   return (
-    <MapContext.Provider value={{ pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate, showReservationList, setShowReservationList }}>
+    <MapContext.Provider value={{ token, pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate, showReservationList, setShowReservationList }}>
       <div className="md:w-3/5 md:mx-auto w-full h-10/10 relative">
         <MapComponent />
         <SettingButton />

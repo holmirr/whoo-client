@@ -62,7 +62,7 @@ export default function ReserveRouting() {
     }
   }, [routeInfo]);
 
-  return routeInfo && !isWaiting && isGray !== null && (
+  return routeInfo && isWaiting || isGray === null || (
     <>
       <button
         onClick={handleReserve}
