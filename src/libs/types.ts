@@ -184,3 +184,11 @@ export type dbRouteInfo = {
   battery_level: number
 }
 
+export type UserInfo = {
+  lat: number,
+  lng: number,
+  stayed_at: string,
+  name: string,
+  img: string,
+  id: number
+}

@@ -7,25 +7,35 @@ import 'leaflet/dist/leaflet.css'
 import MapEvents from './MapEvents';
 import { useState, useContext } from 'react';
 import { MapContext } from '../DynamicMap';
+import { UserInfo } from '@/libs/types';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, token } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo } = useContext(MapContext);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:3001/?${new URLSearchParams({ token })}`);
-
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
     ws.onopen = () => {
       console.log('WebSocket接続が確立しました');
     };
-
     ws.onmessage = (event) => {
-      console.log('サーバーからのメッセージ:', event.data);
+      const msg: string = event.data;
+      if (msg === "ping") {
+        ws.send("pong");
+        return;
+      }
+      const data = JSON.parse(msg) as { type: string, data: { lat: number, lng: number }, id: number };
+      console.log(data);
+      if (data.type === "location") {
+        if (data.id === 0) {
+          setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
+        } else {
+          setUsersInfo(usersInfo.map(user => user.id === data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
+        }
+      }
     };
-
     ws.onclose = () => {
       console.log('WebSocket接続が閉じました');
     };
-
     ws.onerror = (error) => {
       console.log('WebSocketエラー:', error);
     };

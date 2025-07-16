@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { createContext, useEffect, useState } from "react";
-import { MapContextType, Location } from "@/libs/types";
+import { MapContextType, Location, UserInfo } from "@/libs/types";
 import UpdateButton from "./Button/Normal/UpdateButton";
 import SettingButton from "./Button/SettingButton";
 import MyPositionButton from "./Button/MyPositionButton";
@@ -31,7 +31,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, token }: {
   const [pinsLatLng, setPinsLatLng] = useState<{ lat: number, lng: number } | null>(null);
   const [nowLatLng, setNowLatLng] = useState<{ lat: number, lng: number } | null>(_nowLatLng);
   const [startDate, setStartDate] = useState<string>("");
-  const [usersInfo, setUsersInfo] = useState(() =>
+  const [usersInfo, setUsersInfo] = useState<UserInfo[]>(() =>
     users.map((user) => ({
       lat: parseFloat(user.latitude),
       lng: parseFloat(user.longitude),

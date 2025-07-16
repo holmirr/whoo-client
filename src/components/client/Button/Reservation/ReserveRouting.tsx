@@ -6,7 +6,7 @@ import { validStartDate } from "@/libs/utils";
 import { getReservationList } from "@/action";
 
 export default function ReserveRouting() {
-  const { routeInfo, setRouteInfo, setIsRouting, mode, batteryLevel } = useContext(MapContext);
+  const { routeInfo, setRouteInfo, setIsRouting, mode, batteryLevel, token } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isGray, setIsGray] = useState<boolean | null>(null);
@@ -18,7 +18,7 @@ export default function ReserveRouting() {
       return;
     }
     setIsReserving(true);
-    const result = await reserveRouteLatLngs(routeInfo, batteryLevel);
+    const result = await reserveRouteLatLngs(token, routeInfo, batteryLevel);
     if (result.success) {
       alert("経路を予約しました");
       setRouteInfo(null);

@@ -42,7 +42,7 @@ export async function getFriendsLatLng() {
 }
 
 // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
-export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null, batteryLevel: number) {
+export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null, batteryLevel: number) {
   try {
     if (!routeInfo) {
       throw new Error("routeInfoがnullです");
@@ -54,23 +54,23 @@ export async function reserveRouteLatLngs(routeInfo: { latlngs: { lat: number, l
     if (!token) {
       redirect("/whoo/login");
     }
-    if (routeInfo.startDate === "now") {
-      const reservationList = await getReservationList();
-      if (reservationList.every((reservation) => validStartDate(routeInfo.startDate as string, routeInfo.time, reservation.scheduledTime, reservation.requiredTime))) {
-        return { success: "startDate is now", error: null };
-      } else {
-        return { error: "予約時間が重複しています", success: null };
-      }
+    const interval = routeInfo.time / routeInfo.latlngs.length;
+    const speed = (routeInfo.distance / 1000) / (routeInfo.time / 3600);
+    const res = await fetch(`${process.env.API_SERVER}/api/execRoutes?${new URLSearchParams({token: encryptedToken})}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        routes: routeInfo.latlngs,
+        interval,
+        batteryLevel,
+        speed
+      })
+    })
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
     }
-    console.log("routeInfo is reserved in serverAction", routeInfo);
-    await saveRouteInfo({
-      token: token,
-      scheduledTime: new Date(routeInfo.startDate),
-      requiredTime: routeInfo.time,
-      latlngs: routeInfo.latlngs,
-      distance: routeInfo.distance,
-      batteryLevel: batteryLevel
-    });
     return { success: "ルート情報の予約に成功しました", error: null };
   }
   catch (error) {
