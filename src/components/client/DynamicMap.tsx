@@ -12,22 +12,19 @@ import ReserveRouting from "./Button/Reservation/ReserveRouting";
 import FriendsPositionButton from "./Button/FriendsPositionButton";
 import FriendsList from "./FriendsList";
 import Modes from "./Button/Modes";
-import ReservationList from "./Setting/ReservationList";
 const MapComponent = dynamic(() => import("@/components/client/Map/Maps"), { ssr: false });
     
 export const MapContext = createContext({} as MapContextType);
 
 export default function DynamicMap({ users, _nowLatLng, profileImage, token }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string, token: string }) {
   const [showFriendsList, setShowFriendsList] = useState(false);
-  // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
-  const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null>(null);
+  // distanceはm, defaultTimeは秒
+  const [routeInfo, setRouteInfo] = useState<{ latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null>(null);
   const [isRouting, setIsRouting] = useState(false);
   const [batteryLevel, setBatteryLevel] = useState(80);
-  const [start, setStart] = useState<{ lat: number, lng: number } | null>(null);
   const [end, setEnd] = useState<{ lat: number, lng: number } | null>(null);
   const [showSetting, setShowSetting] = useState(false);
   const [mode, setMode] = useState<"normal" | "routing" >("normal");
-  const [showReservationList, setShowReservationList] = useState(false);
   const [pinsLatLng, setPinsLatLng] = useState<{ lat: number, lng: number } | null>(null);
   const [nowLatLng, setNowLatLng] = useState<{ lat: number, lng: number } | null>(_nowLatLng);
   const [startDate, setStartDate] = useState<string>("");
@@ -45,14 +42,13 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, token }: {
 
   useEffect(() => {
     setPinsLatLng(null);
-    setStart(null);
     setEnd(null);
     setRouteInfo(null);
     setIsRouting(false);
   }, [mode]);
   
   return (
-    <MapContext.Provider value={{ token, pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, startDate, setStartDate, showReservationList, setShowReservationList }}>
+    <MapContext.Provider value={{ token, pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList}}>
       <div className="md:w-3/5 md:mx-auto w-full h-10/10 relative">
         <MapComponent />
         <SettingButton />
@@ -64,7 +60,6 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, token }: {
         <FriendsPositionButton />
         <FriendsList />
         <Modes /> 
-        {showReservationList && <ReservationList />}
       </div>
     </MapContext.Provider>
   )

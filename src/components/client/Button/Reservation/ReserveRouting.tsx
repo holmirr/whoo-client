@@ -2,21 +2,14 @@
 import { useContext, useState, useEffect } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 import { reserveRouteLatLngs } from "@/action";
-import { validStartDate } from "@/libs/utils";
-import { getReservationList } from "@/action";
 
 export default function ReserveRouting() {
-  const { routeInfo, setRouteInfo, setIsRouting, mode, batteryLevel, token } = useContext(MapContext);
+  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [isGray, setIsGray] = useState<boolean | null>(null);
   const [popupMsg, setPopupMsg] = useState("");
-  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleReserve = async () => {
-    if (isGray) {
-      return;
-    }
     setIsReserving(true);
     const result = await reserveRouteLatLngs(token, routeInfo, batteryLevel);
     if (result.success) {
@@ -24,55 +17,35 @@ export default function ReserveRouting() {
       setRouteInfo(null);
       setIsRouting(false);
       setIsReserving(false);
+      
     } else {
-      if (result.error === "予約時間が重複しています") {
-        alert("予約時間が重複しています");
-      } else {
-        alert("経路を予約に失敗しました");
-      }
+      alert(result.error)
       setIsReserving(false);
     }
   }
 
   useEffect(() => {
-    if (routeInfo?.startDate) {
-      if (routeInfo.startDate === "now") {
-        setIsGray(false);
-        return;
-      }
-      const compareReservation = async () => {
-        setIsWaiting(true);
-        const reservationList = await getReservationList();
-        if (reservationList.every((reservation) => validStartDate(routeInfo.startDate as string, routeInfo.time, reservation.scheduledTime, reservation.requiredTime))) {
-          setIsGray(false);
-        } else {
-          setIsGray(true);
-          setPopupMsg("予約時間が重複しています")
+    if (routeInfo) {
+      if (!routeInfo.time) {
+        setPopupMsg("移動時間を設定してください");
+        return () => {
+          setPopupMsg("");
         }
-        setIsWaiting(false);
-      }
-      compareReservation();
-    } else {
-      setIsGray(true);
-      setPopupMsg("予約時間を設定してください");
-    }
-
-    if (!routeInfo) {
-      setIsGray(null);
+      } 
     }
   }, [routeInfo]);
 
-  return routeInfo && isWaiting || isGray === null || (
+  return routeInfo &&  (
     <>
       <button
         onClick={handleReserve}
-        onMouseEnter={isGray ? () => { setShowPopup(true) } : undefined}
+        onMouseEnter={routeInfo.time ? undefined : () => { setShowPopup(true) }} 
         onMouseLeave={() => { setShowPopup(false) }}
         className={`absolute bottom-12 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 z-1000 
-      ${isGray ? "cursor-not-allowed bg-gray-500 hover:bg-gray-500" : "cursor-pointer"}`}
+      ${routeInfo.time ? "cursor-pointer" : "cursor-not-allowed bg-gray-500 hover:bg-gray-500"}`}
         disabled={isReserving}
       >
-        {isReserving ? "予約中..." : "経路を予約"}
+        {isReserving ? (<div className="w-4 h-4 bg-white rounded-full animate-ping"/>) : "移動を開始する"}
       </button>
       {showPopup && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-2 rounded-md z-1000">

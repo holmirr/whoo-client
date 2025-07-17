@@ -4,24 +4,16 @@ import { MapContext } from "@/components/client/DynamicMap";
 import ModeSelect from "./ModeSelect";
 import Battery from "./Battery";
 import RequiredTime from "./RequiredTime";
-import StartDate from "./StartDate";
 
 
 export default function Setting() {
   const { mode, setMode, setBatteryLevel, showSetting, setShowSetting, routeInfo } = useContext(MapContext);
-  const [requiredTime, setRequiredTime] = useState<string>("");
-  const [settingMode, setSettingMode] = useState<"normal" | "routing">(mode==="reservationList" ? "normal" : mode);
+  const [settingMode, setSettingMode] = useState<"normal" | "routing">(mode);
 
   useEffect(() => {
-    setSettingMode(mode==="reservationList" ? "normal" : mode);
+    setSettingMode(mode);
   }, [mode]);
-  
-  useEffect(() => {
-    if (routeInfo?.time) {
-      const min = Math.floor(routeInfo.time / 60);
-      setRequiredTime(min.toString());
-    }
-  }, [routeInfo]);
+
 
   return showSetting && (
     <>
@@ -47,8 +39,7 @@ export default function Setting() {
           <ModeSelect settingMode={settingMode} setSettingMode={setSettingMode} />
           <div className="overflow-y-auto flex flex-col gap-4 no-scrollbar pt-4" >
             {(settingMode === "normal" || settingMode === "routing") && <Battery />}
-            {settingMode === "routing" && <RequiredTime requiredTime={requiredTime} setRequiredTime={setRequiredTime} />}
-            {settingMode === "routing" && <StartDate />}
+            {settingMode === "routing" && <RequiredTime/>}
           </div>
         </div>
       </div>

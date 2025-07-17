@@ -14,20 +14,6 @@ export const calcStayTime = (stayed_at: string) => {
   }
 }
 
-// startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
-// resDateはDateオブジェクトである
-export const validStartDate = (startDate: string, required_sec: number, reservStart: Date, reserved_sec: number) => {
-  let start: Date;
-  if (startDate === "now") {
-    start = new Date();
-  } else {
-    start = new Date(startDate);
-  }
-  const end = new Date(start.getTime() + required_sec * 1000);
-  const reservEnd = new Date(reservStart.getTime() + reserved_sec * 1000);
-  return end < reservStart || reservEnd < start;
-}
-
 export const secToHour = (sec: number) => {
   const hours = Math.floor(sec / 60 / 60);
   const minutes = Math.floor(sec / 60 % 60);

@@ -24,14 +24,12 @@ export type MapContextType = {
   setFlyTarget: (value: { lat: number, lng: number, id: number } | null) => void,
   mode: "normal" | "routing",
   setMode: (value: "normal" | "routing") => void,
-  start: { lat: number, lng: number } | null,
-  setStart: (value: { lat: number, lng: number } | null) => void,
   end: { lat: number, lng: number } | null,
   setEnd: (value: { lat: number, lng: number } | null) => void,
   isRouting: boolean,
   setIsRouting: (value: boolean) => void,
-  routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string, requiredTime?: number } | null,
-  setRouteInfo: (value: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string, requiredTime?: number } | null) => void,
+  routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null,
+  setRouteInfo: (value: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null) => void,
   profileImage: string,
   batteryLevel: number,
   setBatteryLevel: (value: number) => void,
@@ -39,10 +37,6 @@ export type MapContextType = {
   setShowSetting: (value: boolean) => void,
   showFriendsList: boolean,
   setShowFriendsList: (value: boolean) => void,
-  startDate: string,
-  setStartDate: (value: string) => void,
-  showReservationList: boolean,
-  setShowReservationList: (value: boolean) => void,
 }   
 
 export interface LocationData {
@@ -172,16 +166,6 @@ export type whooUesr = {
   longitude: number | null,
   stayed_at: Date | null,
   battery_level: number | null
-}
-
-export type dbRouteInfo = {
-  token: string,
-  session_id: string,
-  scheduled_time: Date,
-  required_time: number,
-  latlngs: { lat: number, lng: number }[],
-  distance: number,
-  battery_level: number
 }
 
 export type UserInfo = {

@@ -3,17 +3,19 @@
 import { getFriendsInfo, updateLocation } from "@/libs/whooClient";
 import { signIn, auth } from "@/auth/auth";
 import { redirect } from "next/navigation";
-import { saveWhooUser, saveRouteInfo, getRouteInfo, deleteRouteInfo } from "@/libs/database";
-import { validStartDate } from "@/libs/utils";
+import { saveWhooUser, getIsNoExec } from "@/libs/database";
 
-export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number) {
+export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number): Promise<string> {
   if (!props) {
-    console.log("pinが設定されていません")
-    return false;
+    return "pinが設定されていません";
   }
   const session = await auth();
   if (!session?.whoo) {
     redirect("/whoo/login");
+  }
+  const isNoExec = await getIsNoExec(session.whoo.token);
+  if (isNoExec) {
+    return "移動中は位置情報を更新できません";
   }
   await updateLocation({
     token: session.whoo.token,
@@ -30,6 +32,7 @@ export async function updatePinsLatLng(props: { lat: number, lng: number } | nul
     stayedAt: new Date(),
     batteryLevel: batteryLevel,
   });
+  return "位置情報を更新しました";
 }
 
 export async function getFriendsLatLng() {
@@ -42,13 +45,12 @@ export async function getFriendsLatLng() {
 }
 
 // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
-export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, time: number, startDate?: string } | null, batteryLevel: number) {
+export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null, batteryLevel: number) {
   try {
     if (!routeInfo) {
       throw new Error("routeInfoがnullです");
-    }
-    if (!routeInfo.startDate) {
-      throw new Error("startDateがnullです");
+    } else if (!routeInfo.time) {
+      throw new Error("timeがnullです");
     }
     const token = (await auth())?.whoo?.token;
     if (!token) {
@@ -95,27 +97,3 @@ export async function whooLoginAction(prevState: any, formData: FormData) {
   }
 }
 
-export async function getReservationList() {
-  const session = await auth();
-  if (!session?.whoo) {
-    redirect("/whoo/login");
-  }
-  const reservationList = await getRouteInfo(session.whoo.token);
-  return reservationList.map((resInfo) => {
-    return {
-      sessionId: resInfo.session_id,
-      scheduledTime: resInfo.scheduled_time,
-      requiredTime: resInfo.required_time,
-      distance: resInfo.distance,
-      batteryLevel: resInfo.battery_level
-    }
-  })
-}
-
-export async function deleteReservation(session_id: string) {
-  const session = await auth();
-  if (!session?.whoo) {
-    redirect("/whoo/login");
-  }
-  await deleteRouteInfo(session_id);
-}

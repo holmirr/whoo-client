@@ -8,9 +8,10 @@ import MapEvents from './MapEvents';
 import { useState, useContext } from 'react';
 import { MapContext } from '../DynamicMap';
 import { UserInfo } from '@/libs/types';
+import { updatePinsLatLng } from '@/action';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel } = useContext(MapContext);
 
   useEffect(() => {
     const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
@@ -50,15 +51,20 @@ export default function Maps() {
     if (!nowLatLng) {
       navigator.geolocation.getCurrentPosition((position) => {
         setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
+        updatePinsLatLng({ lat: position.coords.latitude, lng: position.coords.longitude }, batteryLevel/100);
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
+        updatePinsLatLng({ lat: 35.681236, lng: 139.767125 }, batteryLevel/100);
       });
+    } else {
+      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel/100);
     }
 
     return () => {
       ws.close();
     };
   }, []);
+
   
   return nowLatLng && (
     <MapContainer

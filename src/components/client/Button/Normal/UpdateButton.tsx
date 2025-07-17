@@ -1,4 +1,4 @@
-import { useContext, useState} from "react";
+import { useContext, useState } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 import { updatePinsLatLng } from "@/action";
 
@@ -12,15 +12,25 @@ export default function UpdateButton() {
     }
     try {
       setIsUpdating(true);
-      await updatePinsLatLng({
+      const result = await updatePinsLatLng({
         lat: pinsLatLng.lat,
         lng: pinsLatLng.lng,
       }, batteryLevel / 100);
-      setNowLatLng({ lat: pinsLatLng.lat, lng: pinsLatLng.lng });
-      setFlyTarget({ lat: pinsLatLng.lat, lng: pinsLatLng.lng, id: 0 });
-      setPinsLatLng(null);
-      setIsUpdating(false);
-      alert("位置情報を更新しました");
+      if (result === "移動中は位置情報を更新できません") {
+        setIsUpdating(false);
+        alert(result);
+        return;
+      } else if (result === "pinが設定されていません") {
+        setIsUpdating(false);
+        alert(result);
+        return;
+      } else if (result === "位置情報を更新しました") {
+        setNowLatLng({ lat: pinsLatLng.lat, lng: pinsLatLng.lng });
+        setFlyTarget({ lat: pinsLatLng.lat, lng: pinsLatLng.lng, id: 0 });
+        setPinsLatLng(null);
+        setIsUpdating(false);
+        alert(result);
+      }
     } catch (error) {
       console.error(error);
       alert("位置情報の更新に失敗しました");

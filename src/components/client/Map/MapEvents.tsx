@@ -8,14 +8,6 @@ import "leaflet-routing-machine";
 import { calcStayTime } from "@/libs/utils";
 import { getFriendsLatLng } from "@/action";
 
-const startIcon = L.icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34]
-});
-
 const endIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -25,7 +17,7 @@ const endIcon = L.icon({
 });
 
 export default function MapEvents() {
-  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, start, setStart, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, startDate, setStartDate, setUsersInfo } = useContext<MapContextType>(MapContext);
+  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, setUsersInfo } = useContext<MapContextType>(MapContext);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const iconSize = 48;
 
@@ -80,14 +72,10 @@ export default function MapEvents() {
         setPinsLatLng({ lat: position.lat, lng: position.lng });
       }
       else if (mode === "routing") {
-        if (start === null) {
-          setStart({ lat: e.latlng.lat, lng: e.latlng.lng });
-        }
-        else if (end === null) {
+        if (end === null) {
           setEnd({ lat: e.latlng.lat, lng: e.latlng.lng });
         }
         else {
-          setStart(null);
           setEnd(null);
           setIsRouting(false);
         }
@@ -113,12 +101,12 @@ export default function MapEvents() {
       }
     }
   }, [flyTarget]);
-  
+
 
   useEffect(() => {
-    if (isRouting && start && end) {
+    if (isRouting && nowLatLng && end) {
       const routingControl = L.Routing.control({
-        waypoints: [L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng)],
+        waypoints: [L.latLng(nowLatLng.lat, nowLatLng.lng), L.latLng(end.lat, end.lng)],
         routeWhileDragging: true,
         router: L.Routing.osrmv1({
           serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
@@ -128,7 +116,7 @@ export default function MapEvents() {
         show: false,
         collapsible: true,
         autoRoute: true,
-        plan: new L.Routing.Plan([L.latLng(start.lat, start.lng), L.latLng(end.lat, end.lng)], {
+        plan: new L.Routing.Plan([L.latLng(nowLatLng.lat, nowLatLng.lng), L.latLng(end.lat, end.lng)], {
           createMarker: (i, wp) => false,
         }),
       });
@@ -137,11 +125,9 @@ export default function MapEvents() {
         const route = e.routes[0];
         const latLngs = route.coordinates;
         const distance = route.summary.totalDistance;
-        console.log("distance", distance);
-        const time = route.summary.totalTime;
-        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance: distance, time: Math.floor(time), startDate: startDate || undefined });
+        const defaultTime = Math.floor(route.summary.totalTime);
+        setRouteInfo({ latlngs: latLngs.map((latLng: L.LatLng) => ({ lat: latLng.lat, lng: latLng.lng })), distance, defaultTime });
       });
-      console.log("route is found and setRouteInfo is called ");
       return () => {
         map.removeControl(routingControl);
         setRouteInfo(null);
@@ -186,13 +172,7 @@ export default function MapEvents() {
           </Marker>
         </div>
       )}
-      {start && (
-        <Marker position={start} icon={startIcon}>
-          <Popup>
-            出発地
-          </Popup>
-        </Marker>
-      )}
+
       {end && (
         <Marker position={end} icon={endIcon}>
           <Popup>
