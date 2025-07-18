@@ -4,7 +4,6 @@ import { auth } from "@/auth/auth";
 import { redirect } from "next/navigation";
 import { getWhooUser } from "@/libs/database";
 import { encrypt } from "@/libs/encrypt";
-export const dynamic = "force-dynamic";
 
 export default async function WhooPage() {
   try {
