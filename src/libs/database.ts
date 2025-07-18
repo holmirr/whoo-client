@@ -47,5 +47,5 @@ export async function getIsNoExec(token: string): Promise<boolean | undefined> {
 }
 
 export async function getAllWhooUsers() {
-  return await sql<whooUesr[]>`SELECT * FROM whoo_users`;
+  return await sql<whooUesr[]>`SELECT * FROM whoo_users WHERE no_exec = FALSE`;
 }
