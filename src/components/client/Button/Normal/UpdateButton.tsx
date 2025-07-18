@@ -34,6 +34,7 @@ export default function UpdateButton() {
     } catch (error) {
       console.error(error);
       alert("位置情報の更新に失敗しました");
+      setIsUpdating(false);
     }
   }
   return pinsLatLng && (
