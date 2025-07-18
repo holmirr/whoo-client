@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function WhooPage() {
   try {
     const session = await auth();
-    if (!session?.whoo) {
+    if (!session?.whoo?.token) {
       redirect("/whoo/login");
     }
     const token = session.whoo.token;
