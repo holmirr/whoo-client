@@ -11,10 +11,10 @@ import { UserInfo } from '@/libs/types';
 import { updatePinsLatLng } from '@/action';
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel, setIsReflecting } = useContext(MapContext);
 
   useEffect(() => {
-    
+
     // マーカーアイコンの問題を修正
     L.Icon.Default.mergeOptions({
       iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -25,13 +25,11 @@ export default function Maps() {
     if (!nowLatLng) {
       navigator.geolocation.getCurrentPosition((position) => {
         setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
-        updatePinsLatLng({ lat: position.coords.latitude, lng: position.coords.longitude }, batteryLevel/100);
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
-        updatePinsLatLng({ lat: 35.681236, lng: 139.767125 }, batteryLevel/100);
       });
     } else {
-      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel/100);
+      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel / 100);
     }
 
     let ws: WebSocket;
@@ -55,6 +53,7 @@ export default function Maps() {
       if (data.type === "location") {
         if (data.id === 0) {
           setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
+          setIsReflecting(true);
         } else {
           setUsersInfo(usersInfo.map(user => user.id === data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
         }
@@ -66,13 +65,13 @@ export default function Maps() {
     ws.onerror = (error) => {
       console.log('WebSocketエラー:', error);
     };
-    
+
     return () => {
       ws.close();
     };
   }, []);
 
-  
+
   return nowLatLng && (
     <MapContainer
       center={[nowLatLng.lat, nowLatLng.lng]}

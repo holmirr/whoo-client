@@ -12,6 +12,21 @@ export async function createTable() {
     longitude FLOAT,
     stayed_at TIMESTAMP WITH TIME ZONE,
     battery_level FLOAT,
+    expires TIMESTAMP WITH TIME ZONE,
+    no_exec BOOLEAN DEFAULT FALSE
+  )`;
+}
+
+export async function seedTable() {
+  await sql`DROP TABLE IF EXISTS whoo_users`;
+  await sql`CREATE TABLE whoo_users (
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    latitude FLOAT,
+    longitude FLOAT,
+    stayed_at TIMESTAMP WITH TIME ZONE,
+    battery_level FLOAT,
+    expires TIMESTAMP WITH TIME ZONE,
     no_exec BOOLEAN DEFAULT FALSE
   )`;
 }
@@ -48,4 +63,8 @@ export async function getIsNoExec(token: string): Promise<boolean | undefined> {
 
 export async function getAllWhooUsers() {
   return await sql<whooUesr[]>`SELECT * FROM whoo_users WHERE no_exec = FALSE`;
+}
+
+export async function deleteLatLng(token: string) {
+  await sql`UPDATE whoo_users SET latitude = NULL, longitude = NULL WHERE token = ${token}`;
 }

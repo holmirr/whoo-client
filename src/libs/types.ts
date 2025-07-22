@@ -37,6 +37,8 @@ export type MapContextType = {
   setShowSetting: (value: boolean) => void,
   showFriendsList: boolean,
   setShowFriendsList: (value: boolean) => void,
+  isReflecting: boolean,
+  setIsReflecting: (value: boolean) => void,
 }   
 
 export interface LocationData {
@@ -165,7 +167,9 @@ export type whooUesr = {
   latitude: number | null,
   longitude: number | null,
   stayed_at: Date | null,
-  battery_level: number | null
+  battery_level: number | null,
+  no_exec: boolean,
+  expires: Date | null
 }
 
 export type UserInfo = {

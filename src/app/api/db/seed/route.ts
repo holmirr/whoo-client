@@ -1,8 +1,8 @@
-import { createTable } from "@/libs/database";
+import { seedTable } from "@/libs/database";
 
 export async function GET(request: Request) {
   try {
-    await createTable();
+    await seedTable();
     return new Response("OK");
   } catch (error) {
     console.error(error);

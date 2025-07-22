@@ -4,7 +4,7 @@ import { updatePinsLatLng } from "@/action";
 
 export default function UpdateButton() {
   const [isUpdating, setIsUpdating] = useState(false);
-  const { pinsLatLng, setNowLatLng, setFlyTarget, batteryLevel, setPinsLatLng, } = useContext(MapContext);
+  const { pinsLatLng, setNowLatLng, setFlyTarget, batteryLevel, setPinsLatLng, setIsReflecting } = useContext(MapContext);
   const handleUpdateLocation = async () => {
     if (!pinsLatLng) {
       alert("ピンの位置を選択してください");
@@ -26,6 +26,7 @@ export default function UpdateButton() {
         return;
       } else if (result === "位置情報を更新しました") {
         setNowLatLng({ lat: pinsLatLng.lat, lng: pinsLatLng.lng });
+        setIsReflecting(true);
         setFlyTarget({ lat: pinsLatLng.lat, lng: pinsLatLng.lng, id: 0 });
         setPinsLatLng(null);
         setIsUpdating(false);

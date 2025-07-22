@@ -3,7 +3,7 @@
 import { getFriendsInfo, updateLocation } from "@/libs/whooClient";
 import { signIn, auth } from "@/auth/auth";
 import { redirect } from "next/navigation";
-import { saveWhooUser, getIsNoExec } from "@/libs/database";
+import { saveWhooUser, getIsNoExec, deleteLatLng } from "@/libs/database";
 
 export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number): Promise<string> {
   if (!props) {
@@ -97,3 +97,10 @@ export async function whooLoginAction(prevState: any, formData: FormData) {
   }
 }
 
+export async function deleteLatLngAction() {
+  const session = await auth();
+  if (!session?.whoo) {
+    redirect("/whoo/login");
+  }
+  await deleteLatLng(session.whoo.token);
+}
