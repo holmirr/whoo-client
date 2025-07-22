@@ -14,7 +14,13 @@ export default function Maps() {
   const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel } = useContext(MapContext);
 
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
+    } catch (error) {
+      console.error(error);
+      return;
+    }
     ws.onopen = () => {
       console.log('WebSocket接続が確立しました');
     };
