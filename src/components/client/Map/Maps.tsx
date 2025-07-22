@@ -14,6 +14,26 @@ export default function Maps() {
   const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel } = useContext(MapContext);
 
   useEffect(() => {
+    
+    // マーカーアイコンの問題を修正
+    L.Icon.Default.mergeOptions({
+      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    });
+
+    if (!nowLatLng) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
+        updatePinsLatLng({ lat: position.coords.latitude, lng: position.coords.longitude }, batteryLevel/100);
+      }, (error) => {
+        setNowLatLng({ lat: 35.681236, lng: 139.767125 });
+        updatePinsLatLng({ lat: 35.681236, lng: 139.767125 }, batteryLevel/100);
+      });
+    } else {
+      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel/100);
+    }
+
     let ws: WebSocket;
     try {
       ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
@@ -47,25 +67,6 @@ export default function Maps() {
       console.log('WebSocketエラー:', error);
     };
     
-    // マーカーアイコンの問題を修正
-    L.Icon.Default.mergeOptions({
-      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    });
-
-    if (!nowLatLng) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
-        updatePinsLatLng({ lat: position.coords.latitude, lng: position.coords.longitude }, batteryLevel/100);
-      }, (error) => {
-        setNowLatLng({ lat: 35.681236, lng: 139.767125 });
-        updatePinsLatLng({ lat: 35.681236, lng: 139.767125 }, batteryLevel/100);
-      });
-    } else {
-      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel/100);
-    }
-
     return () => {
       ws.close();
     };
