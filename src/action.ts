@@ -5,9 +5,12 @@ import { signIn, auth } from "@/auth/auth";
 import { redirect } from "next/navigation";
 import { saveWhooUser, getIsNoExec, deleteLatLng } from "@/libs/database";
 
-export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number): Promise<string> {
+export async function updatePinsLatLng(props: { lat: number, lng: number } | null, batteryLevel: number, expiresDate: Date | null): Promise<{success: string, error: null} | {success: null, error: string}> {
   if (!props) {
-    return "pinが設定されていません";
+    return {
+      success: null,
+      error: "pinが設定されていません"
+    }
   }
   const session = await auth();
   if (!session?.whoo) {
@@ -15,7 +18,10 @@ export async function updatePinsLatLng(props: { lat: number, lng: number } | nul
   }
   const isNoExec = await getIsNoExec(session.whoo.token);
   if (isNoExec) {
-    return "移動中は位置情報を更新できません";
+    return {
+      success: null,
+      error: "移動中は位置情報を更新できません"
+    }
   }
   await updateLocation({
     token: session.whoo.token,
@@ -31,8 +37,12 @@ export async function updatePinsLatLng(props: { lat: number, lng: number } | nul
     lng: props.lng,
     stayedAt: new Date(),
     batteryLevel: batteryLevel,
+    expiresDate: expiresDate
   });
-  return "位置情報を更新しました";
+  return {
+    success: "位置情報を更新しました",
+    error: null
+  };
 }
 
 export async function getFriendsLatLng() {
@@ -45,7 +55,7 @@ export async function getFriendsLatLng() {
 }
 
 // distanceはm, timeは秒, startDateはyyyy-mm-ddThh:mmの形式である(local-timezone)
-export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null, batteryLevel: number) {
+export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null, batteryLevel: number, expiresDate: Date | null) {
   try {
     if (!routeInfo) {
       throw new Error("routeInfoがnullです");
@@ -67,7 +77,8 @@ export async function reserveRouteLatLngs(encryptedToken: string, routeInfo: { l
         routes: routeInfo.latlngs,
         interval,
         batteryLevel,
-        speed
+        speed,
+        expiresDate
       })
     })
     if (!res.ok) {

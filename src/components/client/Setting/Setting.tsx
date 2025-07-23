@@ -4,6 +4,7 @@ import { MapContext } from "@/components/client/DynamicMap";
 import ModeSelect from "./ModeSelect";
 import Battery from "./Battery";
 import RequiredTime from "./RequiredTime";
+import ExpiresDate from "./ExpiresDate";
 
 
 export default function Setting() {
@@ -38,8 +39,10 @@ export default function Setting() {
           </div>
           <ModeSelect settingMode={settingMode} setSettingMode={setSettingMode} />
           <div className="overflow-y-auto flex flex-col gap-4 no-scrollbar pt-4" >
-            {(settingMode === "normal" || settingMode === "routing") && <Battery />}
+            <Battery/>
+            <ExpiresDate/>
             {settingMode === "routing" && <RequiredTime/>}
+            
           </div>
         </div>
       </div>

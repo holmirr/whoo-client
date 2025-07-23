@@ -28,10 +28,7 @@ export default function Maps() {
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
       });
-    } else {
-      updatePinsLatLng({ lat: nowLatLng.lat, lng: nowLatLng.lng }, batteryLevel / 100);
-    }
-
+    } 
     let ws: WebSocket;
     try {
       ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);

@@ -39,7 +39,11 @@ export type MapContextType = {
   setShowFriendsList: (value: boolean) => void,
   isReflecting: boolean,
   setIsReflecting: (value: boolean) => void,
-}   
+  expiresDate: Date | null,
+  setExpiresDate: (value: Date | null) => void,
+  expiresDateInput: Date | null,
+  setExpiresDateInput: (value: Date | null) => void,
+}     
 
 export interface LocationData {
   locations: Location[];

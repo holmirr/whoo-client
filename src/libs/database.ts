@@ -31,23 +31,25 @@ export async function seedTable() {
   )`;
 }
 
-export async function saveWhooUser({ token, lat, lng, stayedAt, batteryLevel }:
+export async function saveWhooUser({ token, lat, lng, stayedAt, batteryLevel, expiresDate }:
   {
     token: string,
     lat?: number,
     lng?: number,
     stayedAt?: Date,
     batteryLevel?: number
+    expiresDate?: Date | null
   }) {
   await sql`
-    INSERT INTO whoo_users (token, latitude, longitude, stayed_at, battery_level)
-    VALUES (${token}, ${lat ?? null}, ${lng ?? null}, ${stayedAt ?? null}, ${batteryLevel ?? null})
+    INSERT INTO whoo_users (token, latitude, longitude, stayed_at, battery_level, expires)
+    VALUES (${token}, ${lat ?? null}, ${lng ?? null}, ${stayedAt ?? null}, ${batteryLevel ?? null}, ${expiresDate ?? null})
     ON CONFLICT (token)
     DO UPDATE SET
       latitude = COALESCE(EXCLUDED.latitude, whoo_users.latitude),
       longitude = COALESCE(EXCLUDED.longitude, whoo_users.longitude), 
       stayed_at = COALESCE(EXCLUDED.stayed_at, whoo_users.stayed_at),
-      battery_level = COALESCE(EXCLUDED.battery_level, whoo_users.battery_level)
+      battery_level = COALESCE(EXCLUDED.battery_level, whoo_users.battery_level),
+      expires = EXCLUDED.expires
   `;
 }
 
@@ -66,5 +68,5 @@ export async function getAllWhooUsers() {
 }
 
 export async function deleteLatLng(token: string) {
-  await sql`UPDATE whoo_users SET latitude = NULL, longitude = NULL WHERE token = ${token}`;
+  await sql`UPDATE whoo_users SET latitude = NULL, longitude = NULL, expires = NULL, stayed_at = NULL WHERE token = ${token}`;
 }

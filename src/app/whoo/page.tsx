@@ -17,13 +17,15 @@ export default async function WhooPage() {
     const users = await getFriendsInfo(token);
     const whooUser = await getWhooUser(token);
     let nowLatLng: { lat: number, lng: number } | null = null;
-    if (whooUser?.latitude && whooUser?.longitude && whooUser?.expires && whooUser?.expires > new Date()) {
+    if (whooUser?.latitude && whooUser?.longitude) {
+      if (!whooUser.expires || whooUser.expires && whooUser.expires > new Date()) {
       nowLatLng = { lat: whooUser.latitude, lng: whooUser.longitude };
-    } else if (whooUser?.latitude && whooUser?.longitude && whooUser?.expires && whooUser?.expires < new Date()) {
-      await deleteLatLng(token);
+      } else {
+        await deleteLatLng(token);
+      }
     }
     return (
-      <DynamicMap users={users} _nowLatLng={nowLatLng} profileImage={profileImage} token={encrypt(token)} />
+      <DynamicMap users={users} _nowLatLng={nowLatLng} profileImage={profileImage} _expiresDate={whooUser?.expires ?? null} token={encrypt(token)} />
     )
   } catch (error) {
     console.error(error);
