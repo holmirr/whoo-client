@@ -5,10 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
 import MapEvents from './MapEvents';
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import { MapContext } from '../DynamicMap';
-import { UserInfo } from '@/libs/types';
-import { updatePinsLatLng } from '@/action';
 
 export default function Maps() {
   const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel, setIsReflecting } = useContext(MapContext);
@@ -62,6 +60,11 @@ export default function Maps() {
     ws.onerror = (error) => {
       console.log('WebSocketエラー:', error);
     };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        ws.send("ping");
+      }
+    });
 
     return () => {
       ws.close();
