@@ -37,7 +37,8 @@ export async function updatePinsLatLng(props: { lat: number, lng: number } | nul
     lng: props.lng,
     stayedAt: new Date(),
     batteryLevel: batteryLevel,
-    expiresDate: expiresDate
+    expiresDate: expiresDate,
+    no_exec: false
   });
   return {
     success: "位置情報を更新しました",

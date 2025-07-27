@@ -1,16 +1,19 @@
 // stayed_atはyyyy-mm-dd hh:mm:ssの形式である(UTC)
-export const calcStayTime = (stayed_at: string) => {
-  const stayedAt = new Date(stayed_at + "+0000");
+export const calcStayTime = (stayed_at: string | Date) => {
+  const stayedAt = typeof stayed_at === "string" ? new Date(stayed_at + "+0000") : stayed_at;
   const diff = Date.now() - stayedAt.getTime();
 
   if (diff < 1 * 60 * 60 * 1000) {
-    return Math.floor(diff / (1000 * 60)) + "分";
+    const result = Math.floor(diff / (1000 * 60)) + "分";
+    return result;
   }
   else if (diff > 24 * 60 * 60 * 1000) {
-    return Math.floor(diff / (1000 * 60 * 60 * 24)) + "日";
+    const result = Math.floor(diff / (1000 * 60 * 60 * 24)) + "日";
+    return result;
   }
   else {
-    return Math.floor(diff / (1000 * 60 * 60)) + "時間" + Math.floor(diff % (1000 * 60 * 60) / (1000 * 60)) + "分";
+    const result = Math.floor(diff / (1000 * 60 * 60)) + "時間" + Math.floor(diff % (1000 * 60 * 60) / (1000 * 60)) + "分";
+    return result;
   }
 }
 

@@ -7,9 +7,16 @@ import 'leaflet/dist/leaflet.css'
 import MapEvents from './MapEvents';
 import { useContext } from 'react';
 import { MapContext } from '../DynamicMap';
+import type { UserInfo, walkingResponse } from '@/libs/types';
+
+declare global {
+  interface WebSocket {
+    isActive?: boolean;
+  }
+}
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel, setIsReflecting } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel, setIsReflecting, wsRef, setIsWalking } = useContext(MapContext);
 
   useEffect(() => {
 
@@ -26,48 +33,76 @@ export default function Maps() {
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
       });
-    } 
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
-    } catch (error) {
-      console.error(error);
-      return;
     }
-    ws.onopen = () => {
-      console.log('WebSocket接続が確立しました');
-    };
-    ws.onmessage = (event) => {
-      const msg: string = event.data;
-      if (msg === "ping") {
-        ws.send("pong");
-        return;
+
+
+    const connectWs = () => {
+      try {
+        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
+        wsRef.current = ws;
+        ws.onopen = () => {
+          console.log('WebSocket接続が確立しました');
+        };
+
+        ws.onmessage = (event: MessageEvent<string>) => {
+          try {
+            const msg = event.data;
+            if (msg === "ping") {
+              wsRef.current?.send("pong");
+              return;
+            }
+            const data = JSON.parse(msg) as walkingResponse;
+            switch (data.type) {
+              case "walking":
+                data.data ? setIsWalking(true) : setIsWalking(false);
+                break;
+              case "location":
+                if (data.data.id === 0) {
+                  setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
+                } else {
+                  setUsersInfo((prevUsersInfo: UserInfo[]) => prevUsersInfo.map(user => user.id === data.data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
+                }
+                break;
+              case "error":
+              case "success":
+              case "stopped":
+                console.log(data.detail);
+                if (data.finish) {
+                  setIsWalking(false);
+                }
+                break;
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        };
+        ws.onclose = () => {
+          console.log('WebSocket接続が閉じました');
+          if (wsRef.current === ws) {
+            wsRef.current = null;
+          }
+        };
+        ws.onerror = (error) => {
+          console.log('WebSocketエラー:', error);
+        };
+      } catch (error) {
+        console.error(error);
       }
-      const data = JSON.parse(msg) as { type: string, data: { lat: number, lng: number }, id: number };
-      console.log(data);
-      if (data.type === "location") {
-        if (data.id === 0) {
-          setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
-          setIsReflecting(true);
-        } else {
-          setUsersInfo(usersInfo.map(user => user.id === data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
-        }
+    }
+
+    connectWs();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !wsRef.current) {
+        connectWs();
       }
     };
-    ws.onclose = () => {
-      console.log('WebSocket接続が閉じました');
-    };
-    ws.onerror = (error) => {
-      console.log('WebSocketエラー:', error);
-    };
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        ws.send("ping");
-      }
-    });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      ws.close();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      wsRef.current?.close();
+      wsRef.current = null;
     };
   }, []);
 

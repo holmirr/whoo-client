@@ -2,15 +2,16 @@
 
 import { useContext, useState, useEffect } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
+import { RouteInfo } from "@/libs/types";
 
-export default function RequiredTime() {
+export default function RequiredTime({ requiredTime, setRequiredTime }: { requiredTime: { hour: number, min: number, sec: number }, setRequiredTime: (time: { hour: number, min: number, sec: number }) => void }) {
   const { routeInfo, setRouteInfo } = useContext(MapContext);
-  const [requiredTime, setRequiredTime] = useState<{ hour: number, min: number, sec: number }>({ hour: 0, min: 0, sec: 0 });
+  
 
   useEffect(() => {
     if (routeInfo) {
       const totalSec = requiredTime.hour * 3600 + requiredTime.min * 60 + requiredTime.sec;
-      setRouteInfo({ ...routeInfo, time: totalSec });
+      setRouteInfo((prev: RouteInfo | null) => prev ? { ...prev, time: totalSec } : null);
     }
   }, [requiredTime]);
 

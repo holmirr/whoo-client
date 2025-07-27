@@ -3,8 +3,8 @@ import { useContext } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 
 export default function GetRouting() {
-  const { end, mode, isRouting, setIsRouting } = useContext(MapContext);
-  return end && mode === "routing" && !isRouting && (
+  const { end, mode, isRouting, setIsRouting, isWalking } = useContext(MapContext);
+  return end && (mode === "routing") && !isRouting && !isWalking && (
     <button
       onClick={() => setIsRouting(true)}
       className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer z-1000"

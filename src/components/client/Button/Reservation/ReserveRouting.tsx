@@ -4,7 +4,7 @@ import { MapContext } from "@/components/client/DynamicMap";
 import { reserveRouteLatLngs } from "@/action";
 
 export default function ReserveRouting() {
-  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput } = useContext(MapContext);
+  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setIsWalking, isWalking } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
@@ -17,7 +17,7 @@ export default function ReserveRouting() {
       setRouteInfo(null);
       setIsRouting(false);
       setIsReserving(false);
-      
+      setIsWalking(true);
     } else {
       alert(result.error)
       setIsReserving(false);
@@ -35,7 +35,7 @@ export default function ReserveRouting() {
     }
   }, [routeInfo]);
 
-  return routeInfo &&  (
+  return routeInfo && !isWalking && (
     <>
       <button
         onClick={handleReserve}

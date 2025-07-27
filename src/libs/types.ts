@@ -12,37 +12,49 @@ export type UpdateLocationData = {
   "user_device[os_version]": string,
 }
 
+export type RouteInfo = {
+  latlngs: { lat: number, lng: number }[],
+  distance: number,
+  defaultTime: number,
+  time?: number
+}
+
 export type MapContextType = {
   token: string,
   pinsLatLng: { lat: number, lng: number } | null,
-  setPinsLatLng: (value: { lat: number, lng: number } | null) => void,
+  setPinsLatLng: React.Dispatch<React.SetStateAction<{ lat: number, lng: number } | null>>,
   nowLatLng: { lat: number, lng: number } | null,
-  setNowLatLng: (value: { lat: number, lng: number } | null) => void,
+  setNowLatLng: React.Dispatch<React.SetStateAction<{ lat: number, lng: number } | null>>,
   usersInfo: { lat: number, lng: number, stayed_at: string, name: string, img: string, id: number }[],
-  setUsersInfo: (value: { lat: number, lng: number, stayed_at: string, name: string, img: string, id: number }[]) => void,
+  setUsersInfo: React.Dispatch<React.SetStateAction<UserInfo[]>>,
   flyTarget: { lat: number, lng: number, id: number } | null,
-  setFlyTarget: (value: { lat: number, lng: number, id: number } | null) => void,
+  setFlyTarget: React.Dispatch<React.SetStateAction<{ lat: number, lng: number, id: number } | null>>,
   mode: "normal" | "routing",
-  setMode: (value: "normal" | "routing") => void,
+  setMode: React.Dispatch<React.SetStateAction<"normal" | "routing">>,
   end: { lat: number, lng: number } | null,
-  setEnd: (value: { lat: number, lng: number } | null) => void,
+  setEnd: React.Dispatch<React.SetStateAction<{ lat: number, lng: number } | null>>,
   isRouting: boolean,
-  setIsRouting: (value: boolean) => void,
+  setIsRouting: React.Dispatch<React.SetStateAction<boolean>>,
   routeInfo: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null,
-  setRouteInfo: (value: { latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null) => void,
+  setRouteInfo: React.Dispatch<React.SetStateAction<{ latlngs: { lat: number, lng: number }[], distance: number, defaultTime: number, time?: number } | null>>,
   profileImage: string,
   batteryLevel: number,
-  setBatteryLevel: (value: number) => void,
+  setBatteryLevel: React.Dispatch<React.SetStateAction<number>>,
   showSetting: boolean,
-  setShowSetting: (value: boolean) => void,
+  setShowSetting: React.Dispatch<React.SetStateAction<boolean>>,
   showFriendsList: boolean,
-  setShowFriendsList: (value: boolean) => void,
+  setShowFriendsList: React.Dispatch<React.SetStateAction<boolean>>,
   isReflecting: boolean,
-  setIsReflecting: (value: boolean) => void,
+  setIsReflecting: React.Dispatch<React.SetStateAction<boolean>>,
+  isWalking: boolean,
+  setIsWalking: React.Dispatch<React.SetStateAction<boolean>>,
   expiresDate: Date | null,
-  setExpiresDate: (value: Date | null) => void,
+  setExpiresDate: React.Dispatch<React.SetStateAction<Date | null>>,
   expiresDateInput: Date | null,
-  setExpiresDateInput: (value: Date | null) => void,
+  setExpiresDateInput: React.Dispatch<React.SetStateAction<Date | null>>,
+  wsRef: React.RefObject<WebSocket | null>,
+  stayedAt: Date | null,
+  setStayedAt: React.Dispatch<React.SetStateAction<Date | null>>,
 }     
 
 export interface LocationData {
@@ -183,4 +195,19 @@ export type UserInfo = {
   name: string,
   img: string,
   id: number
+}
+
+export type walkingResponse = {
+  type:"walking"
+  data: boolean,
+} | {
+  type: "error" | "success" | "stopped",
+  finish: boolean,
+  data: string | number ,
+  detail: string,
+} | {
+  type: "location",
+  finish: boolean,
+  data: { lat: number, lng: number, id: number },
+  detail: string,
 }

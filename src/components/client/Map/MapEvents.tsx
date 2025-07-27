@@ -17,7 +17,7 @@ const endIcon = L.icon({
 });
 
 export default function MapEvents() {
-  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, setUsersInfo } = useContext<MapContextType>(MapContext);
+  const { pinsLatLng, setPinsLatLng, usersInfo, flyTarget, setFlyTarget, mode, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, nowLatLng, setNowLatLng, profileImage, setUsersInfo, stayedAt } = useContext<MapContextType>(MapContext);
   const markersRef = useRef<Record<number, L.Marker>>({});
   const iconSize = 48;
 
@@ -152,6 +152,12 @@ export default function MapEvents() {
         >
           <Popup>
             現在地
+            {stayedAt && (
+              <>
+                <br />
+                {calcStayTime(stayedAt)}
+              </>
+            )}
           </Popup>
         </Marker>
       )}
