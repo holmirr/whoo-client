@@ -16,7 +16,7 @@ declare global {
 }
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, token, usersInfo, setUsersInfo, batteryLevel, setIsReflecting, wsRef, setIsWalking } = useContext(MapContext);
+  const { nowLatLng, setNowLatLng, token, setUsersInfo, wsRef, setIsWalking, setEnd, connectWs } = useContext(MapContext);
 
   useEffect(() => {
 
@@ -33,61 +33,6 @@ export default function Maps() {
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
       });
-    }
-
-
-    const connectWs = () => {
-      try {
-        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
-        wsRef.current = ws;
-        ws.onopen = () => {
-          console.log('WebSocket接続が確立しました');
-        };
-
-        ws.onmessage = (event: MessageEvent<string>) => {
-          try {
-            const msg = event.data;
-            if (msg === "ping") {
-              wsRef.current?.send("pong");
-              return;
-            }
-            const data = JSON.parse(msg) as walkingResponse;
-            switch (data.type) {
-              case "walking":
-                data.data ? setIsWalking(true) : setIsWalking(false);
-                break;
-              case "location":
-                if (data.data.id === 0) {
-                  setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
-                } else {
-                  setUsersInfo((prevUsersInfo: UserInfo[]) => prevUsersInfo.map(user => user.id === data.data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
-                }
-                break;
-              case "error":
-              case "success":
-              case "stopped":
-                console.log(data.detail);
-                if (data.finish) {
-                  setIsWalking(false);
-                }
-                break;
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        };
-        ws.onclose = () => {
-          console.log('WebSocket接続が閉じました');
-          if (wsRef.current === ws) {
-            wsRef.current = null;
-          }
-        };
-        ws.onerror = (error) => {
-          console.log('WebSocketエラー:', error);
-        };
-      } catch (error) {
-        console.error(error);
-      }
     }
 
     connectWs();

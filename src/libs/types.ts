@@ -55,6 +55,7 @@ export type MapContextType = {
   wsRef: React.RefObject<WebSocket | null>,
   stayedAt: Date | null,
   setStayedAt: React.Dispatch<React.SetStateAction<Date | null>>,
+  connectWs: () => void,
 }     
 
 export interface LocationData {

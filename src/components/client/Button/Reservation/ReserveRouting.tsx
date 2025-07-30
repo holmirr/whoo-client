@@ -4,13 +4,16 @@ import { MapContext } from "@/components/client/DynamicMap";
 import { reserveRouteLatLngs } from "@/action";
 
 export default function ReserveRouting() {
-  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setIsWalking, isWalking } = useContext(MapContext);
+  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setIsWalking, isWalking, connectWs, wsRef } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
 
   const handleReserve = async () => {
     setIsReserving(true);
+    if (!wsRef.current) {
+      connectWs();
+    }
     const result = await reserveRouteLatLngs(token, routeInfo, batteryLevel, expiresDateInput);
     if (result.success) {
       alert("経路を予約しました");
