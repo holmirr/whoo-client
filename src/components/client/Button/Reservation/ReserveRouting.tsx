@@ -1,15 +1,19 @@
+// TODO 灰色時のボタン無効化処理
 "use client";
 import { useContext, useState, useEffect } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 import { reserveRouteLatLngs } from "@/action";
 
 export default function ReserveRouting() {
-  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setIsWalking, isWalking, connectWs, wsRef } = useContext(MapContext);
+  const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setExpiresDate, setIsWalking, isWalking, connectWs, wsRef, setIsReflecting, setShowSetting } = useContext(MapContext);
   const [isReserving, setIsReserving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState("");
 
   const handleReserve = async () => {
+    if (!routeInfo?.time) {
+      return;
+    }
     setIsReserving(true);
     if (!wsRef.current) {
       connectWs();
@@ -21,6 +25,9 @@ export default function ReserveRouting() {
       setIsRouting(false);
       setIsReserving(false);
       setIsWalking(true);
+      setIsReflecting(true);
+      setExpiresDate(expiresDateInput);
+      setShowSetting(false);
     } else {
       alert(result.error)
       setIsReserving(false);

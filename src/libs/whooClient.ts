@@ -58,7 +58,6 @@ export async function updateLocation({ token, latitude, longitude, speed, batter
     })
     .replace(/\//g, "-") + " +0000";
   }
-  console.log(data);
   const response = await fetch("https://www.wh00.ooo/api/user/location", {
     method: "PATCH",
     body: new URLSearchParams(data),

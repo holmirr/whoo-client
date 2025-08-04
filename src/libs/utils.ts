@@ -29,9 +29,6 @@ export const secToHour = (sec: number) => {
 export const mTokm = (m: number) => {
   const km = Math.floor(m / 1000);
   const meter = Math.floor(m % 1000);
-  console.log("km", km);
-  console.log("meter", meter);
-  console.log("m", m);
   if (km === 0) return `${meter}m`;
   return `${km}km${meter}m`;
 }

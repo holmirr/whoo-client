@@ -5,22 +5,18 @@ import ModeSelect from "./ModeSelect";
 import Battery from "./Battery";
 import RequiredTime from "./RequiredTime";
 import ExpiresDate from "./ExpiresDate";
-
+import RouteInfo from "./RouteInfo";
+import UpdateButton from "../Button/Normal/UpdateButton";
+import ReserveRouting from "../Button/Reservation/ReserveRouting";
 
 export default function Setting() {
-  const { mode, setMode, setBatteryLevel, showSetting, setShowSetting, routeInfo } = useContext(MapContext);
-  const [settingMode, setSettingMode] = useState<"normal" | "routing">(mode);
+  const { mode, showSetting, setShowSetting, routeInfo } = useContext(MapContext);
   const [requiredTime, setRequiredTime] = useState<{ hour: number, min: number, sec: number }>(() => {
     if (routeInfo?.time) {
       return { hour: Math.floor(routeInfo.time / 3600), min: Math.floor((routeInfo.time % 3600) / 60), sec: routeInfo.time % 60 };
     }
     return { hour: 0, min: 0, sec: 0 };
   });
-
-  useEffect(() => {
-    setSettingMode(mode);
-  }, [mode]);
-
 
   return showSetting && (
     <>
@@ -43,13 +39,14 @@ export default function Setting() {
               </svg>
             </button>
           </div>
-          <ModeSelect settingMode={settingMode} setSettingMode={setSettingMode} />
           <div className="overflow-y-auto flex flex-col gap-4 no-scrollbar pt-4" >
             <Battery/>
             <ExpiresDate/>
-            {settingMode === "routing" && <RequiredTime requiredTime={requiredTime} setRequiredTime={setRequiredTime}/>}
-            
+            {mode === "routing" && <RequiredTime requiredTime={requiredTime} setRequiredTime={setRequiredTime}/>}
+            {mode === "routing" && <RouteInfo/>}
           </div>
+          <UpdateButton/>
+          <ReserveRouting/>
         </div>
       </div>
     </>

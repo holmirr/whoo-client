@@ -14,11 +14,11 @@ export default function StopReflectButton() {
       navigator.geolocation.getCurrentPosition((position) => {
         setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
         setStayedAt(null);
-        setFlyTarget({ lat: position.coords.latitude, lng: position.coords.longitude, id: 0 });
+        setFlyTarget(0);
       }, (error) => {
         setNowLatLng({ lat: 35.681236, lng: 139.767125 });
         setStayedAt(null);
-        setFlyTarget({ lat: 35.681236, lng: 139.767125, id: 0 });
+        setFlyTarget(0);
       });
       
     } catch (error) {

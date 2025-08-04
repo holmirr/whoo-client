@@ -1,3 +1,6 @@
+// TODO 設定をポップアップで表示
+// TODO デザインを整える
+// TODO アイコンを丸にする
 "use client";
 
 import dynamic from "next/dynamic";
@@ -15,26 +18,55 @@ import Modes from "./Button/Modes";
 import StopReflectButton from "./Button/Normal/StopReflect";
 import ReflectNotification from "./ReflectNotification";
 import StopButton from "./Button/Reservation/StopButton";
+
+// dynamicはコールバック関数をクライアントのみで実行し、その結果を返す関数。つまり、サーバーサイドでは実行されない。
+// MapsコンポーネントではMapContainerコンポーネントをimportしているが、このコンポーネントはクライアント特有のAPIを使用するので、サーバーサイドで実行されるとエラーになる
+// ※"use client"でクライアントコンポーネントにしても初期レンダリングは一度サーバーサイドで行われている
 const MapComponent = dynamic(() => import("@/components/client/Map/Maps"), { ssr: false });
 
+// Context.Provider=コンポーネントでchildrenを受け取る
+// childrenはContext.Providerに渡されたpropsのkey=valueをuseContextで取得できる
 export const MapContext = createContext({} as MapContextType);
 
 export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDate, token, _stayedAt }: { users: Location[], _nowLatLng: { lat: number, lng: number } | null, profileImage: string, _expiresDate: Date | null, token: string, _stayedAt: Date | null }) {
+  // whooに位置情報を反映中かどうかというフラグ、初期値はサーバーから渡された_nowLatLngがnullでなければ、まだ更新中だということ。
+  // ※もしexpireされていたら、db中のlat,lngはnullになっている。
   const [isReflecting, setIsReflecting] = useState<boolean>(!!_nowLatLng);
-  const [showFriendsList, setShowFriendsList] = useState(false);
-  // distanceはm, defaultTimeは秒
+  // 移動モードの際のユーザーが指定した道のりのルート情報を保存するためのstate
+  // 位置情報({lat,lng}[])と距離(m)、デフォルトの所要時間(秒)、ユーザーが指定する所要時間（秒）を保存する
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  // フレンドリストの表示/非表示を管理するstate
+  const [showFriendsList, setShowFriendsList] = useState(false);
+  // ルーティングモードの際にユーザーがルート情報を取得しているかを管理するstate
+  // routeInfoを取得するためのuseEffectを発火するフラグとして必要だった
   const [isRouting, setIsRouting] = useState(false);
+  // awsのapiサーバーで実際にユーザーが移動中かどうかを管理するstate
   const [isWalking, setIsWalking] = useState(false);
+  // バッテリー残量を管理するstate
   const [batteryLevel, setBatteryLevel] = useState(80);
+  // whooに位置情報を反映させる有効期限
+  // 初期値はサーバーサイドでdbから取得した値
+  // それ以降は実際にdbに反映させる直前に、expiresDateInputの値をexpiresDateに反映させる
   const [expiresDate, setExpiresDate] = useState<Date | null>(_expiresDate);
+  // ユーザーが設定で指定しているwhooに位置情報を反映させる有効期限
   const [expiresDateInput, setExpiresDateInput] = useState<Date | null>(_expiresDate);
+  // 移動モードの際の目的地の位置情報
   const [end, setEnd] = useState<{ lat: number, lng: number } | null>(null);
+  // 設定画面を表示するかどうかを管理するflag
   const [showSetting, setShowSetting] = useState(false);
+  // モードの管理
   const [mode, setMode] = useState<"normal" | "routing">("normal");
+  // 通常モードの際のピンの位置情報
   const [pinsLatLng, setPinsLatLng] = useState<{ lat: number, lng: number } | null>(null);
+  // 実際の自分がwhooに反映している位置情報
+  // 初期値はサーバーサイドでdbから取得した値で、もしnullであればブラウザから取得した現在地を反映する（なぜならwhooに反映中でない場合はアプリにログインしており、自分の位置情報をwhooに送っているはずだから）
+  // ※もしexpireされていたら、db中のlat,lngはnullになっている。
   const [nowLatLng, setNowLatLng] = useState<{ lat: number, lng: number } | null>(_nowLatLng);
+  // いつから現在地にいるかを示す時刻
+  // 初期値はサーバーサイドでdbから取得した値
   const [stayedAt, setStayedAt] = useState<Date | null>(_stayedAt);
+  // 友達の情報（位置情報、いつから、名前、アイコン画像、id)
+  // stayed_atはstringで、yyyy-mm-dd hh:mm:ssの形式である(UTC）
   const [usersInfo, setUsersInfo] = useState<UserInfo[]>(() =>
     users.map((user) => ({
       lat: parseFloat(user.latitude),
@@ -45,44 +77,65 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
       id: user.user.id,
     }))
   );
-  const [flyTarget, setFlyTarget] = useState<{ lat: number, lng: number, id: number } | null>(null);
+  // useEffectを発火させ、mapの中心部を指定した位置に移動させるためのflag
+  // idを指定しているのは、どのpopupを表示するかを指定するのに必用だから
+  const [flyTarget, setFlyTarget] = useState<number | null>(null);
+  // 現在のWs接続を管理するuseRef
+  // wsRef.currentを手動で切り替える場合は、必ずwsRef.current.close()を実行してからでないとゾンビコネクションが残る。
+  // ※wsRef.current.close()から実行したら、onCloseイベント内で自動でwsRef.current=nullになる。
   const wsRef = useRef<WebSocket | null>(null);
   //useCallbackはuseMemoの関数Ver.useMemoは指定した関数が返す値を保持するが、useCallbackは関数そのものを保持する。
-  //クロージャは関数定義時に初めて決定する。
+  //クロージャは関数定義時に初めて決定するものである。
   //useCallbackの依存配列に値を指定しないと、関数は初回マウント時のクロージャに縛られてしまい、再レンダリング後の最新のuseStateの値を参照できなくなる。これは「古いクロージャ (Stale Closure)」と呼ばれる典型的な問題。
   //なので、コールバック内で使用する変数（state)をuseCallbackの依存配列に指定し、その変数が変更されたら、新しいクロージャを生成するようにする。
   //setState関数への参照はレンダリングごとに変わらないので、明示的に指定しなくてもよい。
+  //※引数の無名関数自体はレンダリングごとに定義されるので、useCallbackの使用はエコシステムのためではない
+  //※使用目的は、関数をuseEffectやuseMemoの依存配列に渡す際に関数への参照が頻繁に変更され、その変更を検知して不要なuseEffectの発火を防ぐため。
   const connectWs = useCallback(() => {
     try {
+      // new WebSocket()が実行されると、接続処理がイベントループにキューされる。
+      // サーバーにUPGRADEリクエストが飛ぶ前からws自体は生成される（ws.readyStateはCONNECTING）。
       const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_SERVER}/?${new URLSearchParams({ token })}`);
-      
+
       if (wsRef.current) {
-        for (let i = 0; i < 10000; i++) {
-          console.log(i);
-        }
+        // もし既に接続している場合は、以前のwsに対してws.close()を実行する→oncloseイベントが発火する→以前の接続が正常に閉じられる。
+        // ※onCLOSEイベントでは、if (wsRef.current = ws) wsRef.current=nullにする処理もあるが、wsRef.current = ws;の処理のほうが早いため実行されない。
+        // ※接続が僅差で2回実行された場合、１回目のwsがCONNECTINGになりUPGRADEリクエストを飛ばす前に、.close()が呼ばれるため、サーバーにはリクエストが飛ばず、クライアント側ではws接続即時終了という表示になる
         wsRef.current.close();
       }
       wsRef.current = ws;
       ws.onopen = () => {
         console.log('WebSocket接続が確立しました');
       };
-  
+
       ws.onmessage = (event: MessageEvent<string>) => {
         try {
+          // event.dataはstring型であり、サーバーが送った文字列が格納される。
           const msg = event.data;
           if (msg === "ping") {
+            // サーバーからpingが送られてきたら、pongを送り返す。
             wsRef.current?.send("pong");
             return;
           }
+          // もしevent.dataが"ping"でなければ、JSON形式なのでparseする。
           const data = JSON.parse(msg) as walkingResponse;
           switch (data.type) {
             case "walking":
+              //, {type: "walking", data: boolean}
+              //. ec2のapiサーバーで移動中であれば、true、そうでなければfalseが返ってくるので、それをクライアントのstateに反映させる。
               data.data ? setIsWalking(true) : setIsWalking(false);
               break;
             case "location":
+              //, {type: "location", data: {id: number, lat: number, lng: number}}
+              //. id=0の場合は自分の位置情報、それ以外はフレンドの位置情報を反映させる。
               if (data.data.id === 0) {
                 setNowLatLng({ lat: data.data.lat, lng: data.data.lng });
               } else {
+                // フレンドの位置情報を反映させる。
+                // フレンド情報のオブジェクトのリストを.mapで回し、idが一致したオブジェクトの位置情報だけを更新する。
+                // ※mapは新しい配列を返すので、位置情報更新はuser.lat=data.data.lat; user.lng=data.data.lng; return user;としてもよいが、一行で済ますためにオブジェクト展開で新しいオブジェクトを作成してリストの要素にしている。
+                // ※setStateでprevコールバックを使用しなかった場合、onmessageが定義されたクロージャ=実行されるconnectWs関数が定義された時点でのレンダリング時のuserInfoがクロージャとして参照され続けてしまう。
+                // 上記を言い換えるとws接続時点のuserInfoが、接続完了後、何度connectWs関数が更新され、何度userInfoが更新されても、参照され続けてしまう。
                 setUsersInfo((prevUsersInfo: UserInfo[]) => prevUsersInfo.map(user => user.id === data.data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
               }
               break;
@@ -91,9 +144,12 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
             case "stopped":
               console.log(data.detail);
               if (data.finish) {
+                // finishがtrueの場合は、移動が終了したということ.
+                // その場合は、isWalkingをfalse, setEndを初期化し、Flytargetを自分の位置へ（finishが送られるのは自分の移動のみなのでidは0のみ）
+                // ※nowLatLngは、移動終了後の位置で更新されているはずなので、nullになるはずがないが、typescriptを納得させるためにnullチェック（仮にnullでもflyTargetがnullになるだけ）
                 setIsWalking(false);
                 setEnd(null);
-                setFlyTarget(nowLatLng ? { lat: nowLatLng.lat, lng: nowLatLng.lng, id: 0 } : null);
+                setFlyTarget(nowLatLng && 0);
               }
               break;
           }
@@ -101,25 +157,36 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
           console.error(error);
         }
       };
+      // oncloseイベントは、相手の正常＋異常終了、自分の正常＋異常終了の場合に発火する。
       ws.onclose = () => {
+        // ws接続を閉じるとwsオブジェクトのreadyStateはCLOSEDになリ、ws.send()やws.close()はエラーになる。
+        // そのためwsの参照を削除してガーベジコレクションで開放する必要がある。
         console.log('WebSocket接続が閉じました');
         if (wsRef.current === ws) {
+          //, もし、wsRef.currentがwsと一致していなかったら無関係なws接続への参照が消えてしまう（ゾンビコネクション）
+          //. そのため、wsRef.current === ws の条件は必須。
           wsRef.current = null;
         }
       };
+      // onerrorイベントは、自分と相手の異常終了の場合に発火し、続けてoncloseイベントが発火する。
       ws.onerror = (error) => {
         console.log('WebSocketエラー:', error);
       };
-    } catch (error) {
+    }
+    // このcatchブロックはnew WebSocket()の実行時にエラーが発生した場合に実行される。
+    catch (error) {
       console.error(error);
     }
   }, [nowLatLng]);
 
+  // モードが変更されたら、とりあえずモード内で変化するstateをすべて初期化する。
+  // モード変更ボタンのhandlerでこの処理をするのが理想だが、同じ処理を複数記述する必要があり、コードの可読性が低下ためuseEffect内で書いた。
   useEffect(() => {
     setPinsLatLng(null);
     setEnd(null);
-    setRouteInfo(null);
     setIsRouting(false);
+    // useEffect(clbk, [isRouting])の戻り値のcallbackが実行され、setRouteInfo(null)が実行されるので、下の行は厳密には不要だが、明示的に記載。
+    setRouteInfo(null);
   }, [mode]);
 
   return (
@@ -129,18 +196,15 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
         <ReflectNotification />
         <>
           <Modes />
-          <SettingButton />
           <FriendsPositionButton />
           <MyPositionButton />
         </>
+
         <>
-          <UpdateButton />
           <StopReflectButton />
-        </>
-        <>
           <GetRouting />
-          <ReserveRouting />
           <StopButton />
+          <SettingButton />
         </>
         <>
           <Setting />

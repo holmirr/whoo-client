@@ -20,7 +20,7 @@ export default function FriendsList() {
       })));
       const targetUser = users.find(user => user.user.id === id);
       if (targetUser) {
-        setFlyTarget({ lat: parseFloat(targetUser.latitude), lng: parseFloat(targetUser.longitude), id: targetUser.user.id });
+        setFlyTarget(targetUser.user.id);
       } else {
         throw new Error("ユーザーが見つかりません");
       }

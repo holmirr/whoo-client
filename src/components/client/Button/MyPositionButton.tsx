@@ -6,9 +6,9 @@ export default function MyPositionButton() {
   const { nowLatLng, setFlyTarget } = useContext(MapContext);
   const handleFlyToMe = () => {
     if (nowLatLng) {
-      setFlyTarget({ lat: nowLatLng.lat, lng: nowLatLng.lng, id: 0 });
+      setFlyTarget(0);
     } else {
-      setFlyTarget({ lat: 35.681236, lng: 139.767125, id: 0 });
+      setFlyTarget(0);
     }
   }
   return (
