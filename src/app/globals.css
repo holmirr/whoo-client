@@ -19,3 +19,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     scrollbar-width: none;  /* Firefox */
   }
 }
+
+/* datetime-localのプレースホルダー（テキストとアイコン）を非表示にする */
+.datetime-local-placeholder-hidden::-webkit-datetime-edit {
+  color: transparent;
+}

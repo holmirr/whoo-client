@@ -9,11 +9,16 @@ function getReflectTime(expiresDate: Date) {
   return `${month}/${day} ${hours}:${minutes}`;
 }
 
+// TODO: 中央寄せのCSSについての理解
 export default function ReflectNotification() {
   const { isReflecting, expiresDate } = useContext(MapContext);
   return (
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-black/50 z-10000">
-      {isReflecting ? `${expiresDate ? getReflectTime(expiresDate)+"まで" : "無期限"}反映中` : "反映停止"}
+    <div className="absolute p-2 rounded-md top-0 right-0 md:right-1/2 md:translate-x-1/2 bg-black/50 text-white text-xl z-10000">
+      {isReflecting
+        ? `${
+            expiresDate ? getReflectTime(expiresDate) + "まで" : "無期限"
+          }反映中`
+        : "反映停止"}
     </div>
   );
 }

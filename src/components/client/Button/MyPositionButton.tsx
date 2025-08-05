@@ -13,7 +13,7 @@ export default function MyPositionButton() {
   }
   return (
     <button
-      className="z-10000 absolute bottom-12 right-12 md:w-16 md:h-16 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center"
+      className="z-10000 absolute bottom-12 md:right-12 right-4 md:w-16 md:h-16 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center"
       onClick={handleFlyToMe}
       aria-label="送信"
     >

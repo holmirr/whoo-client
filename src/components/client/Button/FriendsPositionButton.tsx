@@ -9,7 +9,7 @@ export default function FriendsPositionButton() {
   return (
     <button 
       onClick={() => setShowFriendsList(true)}
-      className="absolute top-20 right-4 bg-white p-2 rounded-full shadow-md z-10000"
+      className="absolute md:bottom-36 bottom-28 md:right-12 right-4 md:w-16 md:h-16 w-12 h-12 bg-white p-2 rounded-full shadow-md z-10000"
       aria-label="友達の位置"
     >
       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

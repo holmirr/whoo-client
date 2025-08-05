@@ -63,6 +63,7 @@ export default function MapEvents() {
       eventHandlers={{
         // クリックイベントでは、getFriendsLatLng()を実行し、最新のフレンド情報を取得、その結果をsetUsersInfo()で更新する。
         // その後、setFlyTarget()でフライトの対象を設定し、useEffectでフライトが実行される。
+        // つまりアイコンをクリック→デフォルトのクリック動作としてのポップアップ→設定したクリックハンドラー（新しいUserInfoをfetchし、setStateして再レンダリング→フライト対象としてsetFlyTarget)
         click: async () => {
           const result = await getFriendsLatLng();
           setUsersInfo(result.map((usr) => ({

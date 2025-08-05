@@ -15,7 +15,7 @@ export default function RoutingButton() {
     }
   }
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col items-start gap-2">
     <button
       className={`text-black px-4 py-2 rounded-md ${mode === "routing" ? "bg-blue-500 text-white" : isReflecting ? "bg-white" : "bg-gray-500 cursor-not-allowed"}`}
       onClick={handleClick}

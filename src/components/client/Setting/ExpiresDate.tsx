@@ -21,8 +21,15 @@ export default function ExpiresDate() {
   return (
     <div className="flex items-center gap-2">
       <label htmlFor="expiresDate">有効期限</label>
-      <input type="datetime-local" id="expiresDate" value={expiresDateInput ? getLocalISOString(expiresDateInput) : ""} onChange={(e) => setExpiresDateInput(new Date(e.target.value))} />
-      <button onClick={() => setExpiresDateInput(null)}>無期限</button>
+      <div className="relative">
+        <input type="datetime-local" id="expiresDate" className={`md:w-50 w-40 border-2 border-gray-300 rounded-md p-2 bg-transparent ${!expiresDateInput ? "datetime-local-placeholder-hidden" : ""}`} value={expiresDateInput ? getLocalISOString(expiresDateInput) : ""} onChange={(e) => setExpiresDateInput(e.target.value ? new Date(e.target.value) : null)} />
+        {!expiresDateInput && (
+          <span className="absolute top-1/2 left-2 -translate-y-1/2 text-white pointer-events-none">
+            無期限更新
+          </span>
+        )}
+      </div>
+      <button onClick={() => setExpiresDateInput(null)} className="md:w-20 w-16 bg-blue-500 text-white rounded-md p-2">無期限</button>
     </div>
   );
 }
