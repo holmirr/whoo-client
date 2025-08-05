@@ -24,7 +24,7 @@ export const authConfig = {
     // middlewareで認証済みかをチェックするための関数
     // jwt→session→authorizedの順番で呼ばれる。（sessionの戻り値がauthオブジェクトになる）
     authorized({ auth, request }) {
-    　// sessionが存在し、そのプロパティにkey:whooのオブジェクトが存在するか、そしてそのオブジェクトにkey:tokenが存在するかを確認
+      // sessionが存在し、そのプロパティにkey:whooのオブジェクトが存在するか、そしてそのオブジェクトにkey:tokenが存在するかを確認
       // これがログインの証となっている。
       const whooLoggedIn = !!auth?.whoo?.token;
       if (request.nextUrl.pathname === "/whoo") {
