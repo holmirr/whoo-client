@@ -5,8 +5,8 @@ export async function GET(request: Request, { params }: { params: Promise< { tab
   const { tableName } = await params;
   try {
     await sql`DROP TABLE IF EXISTS ${sql(tableName)}`;
-    console.log("tableName ", tableName, " is deleted");
-    return new Response("tableName " + tableName + " is deleted);
+    console.log("tableName " + tableName + " is deleted");
+    return new Response("tableName " + tableName + " is deleted");
   } catch (error) {   
     console.error(error);
     return new Response("削除エラー", { status: 500 });
