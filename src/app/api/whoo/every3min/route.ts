@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllWhooUsers } from "@/libs/database";
 import { updateLocation } from "@/libs/whooClient";
 
+// dbに保存されている現在地情報をwhooに定期的に反映する処理
+// 本来はec2インスタンスが行い、こちらの処理は一切行われないが、スペアとしてこのルート自体は残しておく
 export async function GET(request: NextRequest) {
   try{
+  // dbからwhooUsersオブジェクトのリストを取得する。
   const whooUsers = await getAllWhooUsers();
   const results = await Promise.allSettled(whooUsers.map(async (user) => {
     if (!user.latitude || !user.longitude) return;
