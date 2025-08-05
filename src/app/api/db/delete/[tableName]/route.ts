@@ -1,13 +1,14 @@
 import { sql } from "@/libs/database";
 
-export async function GET(request: Request, { params }: { params: Promise< { tableName: string }> }) {    
+export async function GET(request: Request, { params }: { params: Promise< { tableName: string }> }) {
+  // パスパラメータでtableNameを指定する。
   const { tableName } = await params;
-  console.log("tableName", tableName);
   try {
     await sql`DROP TABLE IF EXISTS ${sql(tableName)}`;
-    return new Response("OK");
+    console.log("tableName ", tableName, " is deleted");
+    return new Response("tableName " + tableName + " is deleted);
   } catch (error) {   
-    // console.error(error);
+    console.error(error);
     return new Response("削除エラー", { status: 500 });
   }
 }
