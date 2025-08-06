@@ -3,18 +3,12 @@ import { useContext } from "react";
 import { MapContext } from "@/components/client/DynamicMap";
 
 export default function MyPositionButton() {
-  const { nowLatLng, setFlyTarget } = useContext(MapContext);
-  const handleFlyToMe = () => {
-    if (nowLatLng) {
-      setFlyTarget(0);
-    } else {
-      setFlyTarget(0);
-    }
-  }
+  const { setFlyTarget } = useContext(MapContext);
+
   return (
     <button
       className="z-10000 absolute bottom-12 md:right-12 right-4 md:w-16 md:h-16 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center"
-      onClick={handleFlyToMe}
+      onClick={() => setFlyTarget(0)}
       aria-label="送信"
     >
       <svg 

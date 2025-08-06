@@ -3,6 +3,7 @@
 import { MapContext } from "@/components/client/DynamicMap";
 import { useContext } from "react";
 
+// 友達一覧を表示するボタン
 export default function FriendsPositionButton() {
   const { setShowFriendsList } = useContext(MapContext);
 

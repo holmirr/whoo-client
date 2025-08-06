@@ -16,7 +16,7 @@ declare global {
 }
 
 export default function Maps() {
-  const { nowLatLng, setNowLatLng, wsRef, connectWs } = useContext(MapContext);
+  const { nowLatLng,  wsRef, connectWs } = useContext(MapContext);
 
   useEffect(() => {
     // マーカーアイコンの問題を修正（デフォルトのアイコンを設定）
@@ -25,15 +25,6 @@ export default function Maps() {
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
     });
-
-    if (!nowLatLng) {
-      // もし初マウント時にnowLatLngがnullだったら=dbに位置情報がない場合は、ブラウザの位置情報を取得してnowLatLngに設定する。
-      navigator.geolocation.getCurrentPosition((position) => {
-        setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
-      }, (error) => {
-        setNowLatLng({ lat: 35.681236, lng: 139.767125 });
-      });
-    }
 
     // ec2にws接続を行う。（内部でtry,catchでエラー処理はしている）
     connectWs();

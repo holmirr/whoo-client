@@ -2,6 +2,8 @@
 
 import { useContext } from "react";
 import { MapContext } from "../DynamicMap";
+
+// モードを通常モードにするボタン
 export default function NormalButton() {
   const { mode, setMode } = useContext(MapContext);
   return (

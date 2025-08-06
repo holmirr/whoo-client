@@ -3,6 +3,8 @@
 import { useContext, useState } from "react";
 import { MapContext } from "../DynamicMap";
 
+// モードを移動モードにするボタン
+// もし始点が設定されていなければ、押せないかつカーソルを合わせるとポップアップが表示される。
 export default function RoutingButton() {
   const { mode, setMode, isReflecting } = useContext(MapContext);
   const [popupMsg, setPopupMsg] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export default function RoutingButton() {
     }
   }
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="relative">
     <button
       className={`text-black px-4 py-2 rounded-md ${mode === "routing" ? "bg-blue-500 text-white" : isReflecting ? "bg-white" : "bg-gray-500 cursor-not-allowed"}`}
       onClick={handleClick}
@@ -24,7 +26,7 @@ export default function RoutingButton() {
     >
       ルーティング
     </button>
-      { popupMsg && <div className="bg-white p-2 text-black text-sm rounded-md z-1000">{popupMsg}</div> }
+      { popupMsg && <div className=" bg-white p-2 text-black text-sm rounded-md z-1000">{popupMsg}</div> }
     </div>
   )
 }

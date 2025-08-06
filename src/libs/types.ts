@@ -199,6 +199,8 @@ export type UserInfo = {
 }
 
 export type walkingResponse = {
+  type: "expired",
+} | {
   type:"walking"
   data: boolean,
 } | {

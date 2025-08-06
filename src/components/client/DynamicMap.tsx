@@ -1,4 +1,3 @@
-// TODO 設定をポップアップで表示
 // TODO デザインを整える
 // TODO アイコンを丸にする
 "use client";
@@ -6,12 +5,10 @@
 import dynamic from "next/dynamic";
 import { createContext, useEffect, useRef, useState, useCallback } from "react";
 import { MapContextType, Location, UserInfo, RouteInfo, walkingResponse } from "@/libs/types";
-import UpdateButton from "./Button/Normal/UpdateButton";
 import SettingButton from "./Button/SettingButton";
 import MyPositionButton from "./Button/MyPositionButton";
 import Setting from "./Setting/Setting";
 import GetRouting from "./Button/Reservation/GetRouting";
-import ReserveRouting from "./Button/Reservation/ReserveRouting";
 import FriendsPositionButton from "./Button/FriendsPositionButton";
 import FriendsList from "./FriendsList";
 import Modes from "./Button/Modes";
@@ -91,6 +88,8 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
   //setState関数への参照はレンダリングごとに変わらないので、明示的に指定しなくてもよい。
   //※引数の無名関数自体はレンダリングごとに定義されるので、useCallbackの使用はエコシステムのためではない
   //※使用目的は、関数をuseEffectやuseMemoの依存配列に渡す際に関数への参照が頻繁に変更され、その変更を検知して不要なuseEffectの発火を防ぐため。
+  //今回のケースでは無名関数内でwsのイベントハンドラを定義している。ws接続は初回マウント時に原則一度だけ行うので、イベントハンドラは初回マウント時のクロージャに縛られる。
+  //そのため、今回のケースでは無名関数内でstateを参照するのは不適切=>依存配列にstateを指定して、関数が更新されても、すでにイベントハンドラ自体は定義され、登録されており、更新が無意味になる。
   const connectWs = useCallback(() => {
     try {
       // new WebSocket()が実行されると、接続処理がイベントループにキューされる。
@@ -139,19 +138,28 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
                 setUsersInfo((prevUsersInfo: UserInfo[]) => prevUsersInfo.map(user => user.id === data.data.id ? { ...user, lat: data.data.lat, lng: data.data.lng } : user));
               }
               break;
-            case "error":
+            // ec2の30秒ごとの更新処理ではexpiresDateが過去の場合はdb上のlat,lngをnullにする処理が行われている->その場合通知してもらい、UI上の反映状況を更新する。
+            case "expired":
+              // サーバーからexpiredが送られてきたら、whooに位置情報を反映していることを示すフラグをfalseにする。
+              alert("反映期限が切れました。");
+              // isReflectingをfalseにすると、useEffectでブラウザの位置情報を取得してnowLatLngに設定する。+ stayedAtもnullにする。 + リアル現在地へ飛ぶ
+              setIsReflecting(false);
+              break;
             case "success":
-            case "stopped":
-              console.log(data.detail);
+            case "error":
               if (data.finish) {
                 // finishがtrueの場合は、移動が終了したということ.
-                // その場合は、isWalkingをfalse, setEndを初期化し、Flytargetを自分の位置へ（finishが送られるのは自分の移動のみなのでidは0のみ）
-                // ※nowLatLngは、移動終了後の位置で更新されているはずなので、nullになるはずがないが、typescriptを納得させるためにnullチェック（仮にnullでもflyTargetがnullになるだけ）
+                // その場合は、stayeAtを現在時刻に、isWalkingをfalse, setEndを初期化し、Flytargetを自分の位置へ（finishが送られるのは自分の移動のみなのでidは0のみ）
+                // ※stayed_atはec2側でnew Date()で反映し、保存しているが、フロントエンドの表示も変えないといけないので、new Date()で更新（厳密にはdbに保存している時間とstateの値はずれているが、誤差）
+                setStayedAt(new Date());
                 setIsWalking(false);
                 setEnd(null);
-                setFlyTarget(nowLatLng && 0);
+                setFlyTarget(0);
               }
+              console.log(data.detail);
               break;
+            case "stopped":
+              console.log(data.detail);
           }
         } catch (error) {
           console.error(error);
@@ -177,7 +185,7 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
     catch (error) {
       console.error(error);
     }
-  }, [nowLatLng]);
+  }, []);
 
   // モードが変更されたら、とりあえずモード内で変化するstateをすべて初期化する。
   // モード変更ボタンのhandlerでこの処理をするのが理想だが、同じ処理を複数記述する必要があり、コードの可読性が低下ためuseEffect内で書いた。
@@ -188,6 +196,23 @@ export default function DynamicMap({ users, _nowLatLng, profileImage, _expiresDa
     // useEffect(clbk, [isRouting])の戻り値のcallbackが実行され、setRouteInfo(null)が実行されるので、下の行は厳密には不要だが、明示的に記載。
     setRouteInfo(null);
   }, [mode]);
+
+  useEffect(() => {
+    if (!isReflecting) {
+      // もし初マウント時にnowLatLngがnullつまり、isReflectingの初期値がfalseだったらブラウザの位置情報を取得してnowLatLngに設定する。
+      // 初マウント時以外ではisReflectingがtrue->falseの場合なので、stayedAtもnullにする。（expiresDateはnullにしても無期限という意味だし、そもそもIsReflectingがfalseの場合はexpiresDateの値はレンダリングに影響を与えない。） 
+      // そういう意味ではstayedAtもisReflectingがfalseの場合にはレンダリングに影響を与えないが、、、、
+      navigator.geolocation.getCurrentPosition((position) => {
+        setNowLatLng({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setStayedAt(null);
+        setFlyTarget(0);
+      }, (error) => {
+        setNowLatLng({ lat: 35.681236, lng: 139.767125 });
+        setStayedAt(null);
+        setFlyTarget(0);
+      });
+    }
+  }, [isReflecting]);
 
   return (
     <MapContext.Provider value={{ token, pinsLatLng, setPinsLatLng, nowLatLng, setNowLatLng, usersInfo, setUsersInfo, flyTarget, setFlyTarget, mode, setMode, end, setEnd, isRouting, setIsRouting, routeInfo, setRouteInfo, profileImage, batteryLevel, setBatteryLevel, showSetting, setShowSetting, showFriendsList, setShowFriendsList, isReflecting, setIsReflecting, isWalking, setIsWalking, expiresDate, setExpiresDate, expiresDateInput, setExpiresDateInput, wsRef, stayedAt, setStayedAt, connectWs }}>
