@@ -26,7 +26,7 @@ export default function RoutingButton() {
     >
       ルーティング
     </button>
-      { popupMsg && <div className=" bg-white p-2 text-black text-sm rounded-md z-1000">{popupMsg}</div> }
+      { popupMsg && <div className="absolute top-full left-1/2 -translate-x-1/2 bg-white p-2 text-black text-sm rounded-md z-1000">{popupMsg}</div> }
     </div>
   )
 }
