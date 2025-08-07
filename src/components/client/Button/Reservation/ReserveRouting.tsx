@@ -7,11 +7,8 @@ export default function ReserveRouting() {
   const { routeInfo, setRouteInfo, setIsRouting, batteryLevel, token, expiresDateInput, setExpiresDate, setIsWalking, isWalking, connectWs, wsRef, setIsReflecting, setShowSetting } = useContext(MapContext);
   // fetch中のボタン無効化のフラグ
   const [isReserving, setIsReserving] = useState(false);
-  // ポップアップ表示のフラグ
-  const [showPopup, setShowPopup] = useState(false);
-  // ポップアップメッセージ
-  const [popupMsg, setPopupMsg] = useState("");
-
+  // ポップアップメッセージ(nullとstringを使い分けることでshowPopUpを使用しなくても表示/非表示まで管理できる)
+  const [popupMsg, setPopupMsg] = useState<string | null>(null);
 
   const handleReserve = async () => {
     // 移動時間が設定されていない場合はボタンを押しても何も起こらないようにする
@@ -41,11 +38,19 @@ export default function ReserveRouting() {
       setIsRouting(false);
       setIsReserving(false);
       setShowSetting(false);
-      setShowPopup(false);
     } else {
       // エラーメッセージはサーバーアクションで最適化されているのでそのまま表示
       alert(result.error);
       setIsReserving(false);
+    }
+  }
+
+  // スマホの場合はタッチしてonMouseEnterが発火してもonMouseLeaveが発火しないのでポップアップが表示され続ける
+  // -> そのため、ボタンを再度タッチしたらポップアップを閉じる処理を追加する。
+  // ※スマホの場合、タップすると1.touchStart 2.touchend 3.mousedown 4.mouseup 5.click の順にイベントが発火する。
+  const handleTouchStart = () => {
+    if(!routeInfo?.time) {
+      setPopupMsg(prev => prev ? null : "移動時間を設定してください");
     }
   }
 
@@ -61,24 +66,27 @@ export default function ReserveRouting() {
     }
   }, [routeInfo]);
 
+  // 経路予約ボタンは表示するか/しないかの二択、さらに表示する場合、有効か/無効か（popup表示）の２択もある
   // 経路予約ボタンを表示する条件は以下の通り
   // 1.ルート情報を持っている。2.歩行中ではない。
+  // ボタンを表示できた場合、さらに、有効/無効を決める条件はrouteInfo.timeが設定されているかどうか
   return routeInfo && !isWalking && (
     <>
       <button
         onClick={handleReserve}
         // 移動時間が設定されていない場合、ボタンにカーソルを合わせるとポップアップを表示
-        onMouseEnter={routeInfo.time ? undefined : () => { setShowPopup(true) }} 
+        onMouseEnter={routeInfo.time ? undefined : () => { setPopupMsg("移動時間を設定してください") }} 
         // カーソルを離すとポップアップを非表示
-        onMouseLeave={() => { setShowPopup(false) }}
+        onMouseLeave={() => { setPopupMsg(null) }}
+        onTouchStart={handleTouchStart}
         className={`absolute bottom-12 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 z-1000 
       ${routeInfo.time ? "cursor-pointer" : "cursor-not-allowed bg-gray-500 hover:bg-gray-500"}`}
         disabled={isReserving}
       >
         {isReserving ? (<div className="w-4 h-4 bg-white rounded-full animate-ping"/>) : "移動を開始する"}
       </button>
-      {showPopup && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-2 rounded-md z-1000">
+      {popupMsg && (
+        <div className="absolute bottom-24 left-1/2 w-max -translate-x-1/2 bg-white text-black px-4 py-2 rounded-md z-1000">
           <p>{popupMsg}</p>
         </div>
       )}
