@@ -85,6 +85,18 @@ export default function ReserveRouting() {
       >
         {isReserving ? (<div className="w-4 h-4 bg-white rounded-full animate-ping"/>) : "移動を開始する"}
       </button>
+      //, absoluteな要素は強制的にshrink-to-fitになる。
+      // topとleftを指定し、左上の開始位置は決定したが、対応するbottomとrightを指定していないため、大きさは決定されていない。
+      // 1. topとleftで開始位置決定
+      // 2. shrink-to-fitで内部のテキストに合わせて大きさ(width, height)決定
+      // 3. ただし、親要素のwidthは超えない。→ 親要素のwidthはshrink-to-fitでボタンの大きさとなっている。
+      //    この要素は開始点（left-1/2）から親要素のwidthを超えない大きさだけ横方向に広がる。つまりこの要素のwidth = 親要素のwidthの1/2
+      // 4. -translate-x-1/2で中心を親要素の中心に合わせる。
+      // 上記が通常のフローだ。しかし、これではテキストが長い場合、何度も折り返されheight方向に伸びて行ってしまう。
+      // そこで、absoluteなdivに強制的にwidthを設定する。
+      // width: max-contentを指定することで、テキストの長さに合わせてwidthが決定される。
+      //. これで、shrink-to-fitの子要素に合わせて柔軟に広がることができる長所と、width指定による親要素のwidthを超えないという制限に縛られないという長所両方を得ることができる。
+      {popupMsg && <div className="absolute top-full left-1/2 w-max -translate-x-1/2 mt-2 bg-white p-2 text-black text-sm rounded-md z-[1000]">{popupMsg}</div>}
       {popupMsg && (
         <div className="absolute bottom-24 left-1/2 w-max -translate-x-1/2 bg-white text-black px-4 py-2 rounded-md z-1000">
           <p>{popupMsg}</p>
